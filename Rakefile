@@ -15,9 +15,12 @@ Jeweler::Tasks.new do |gem|
   gem.name = "mebla"
   gem.homepage = "http://github.com/cousine/mebla"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
-  gem.email = "alfaengine@hotmail.com"
+  gem.summary = %Q{An elasticsearch wrapper for mongoid odm.}
+  gem.description = %Q{
+    An elasticsearch wrapper for mongoid odm. Makes integration between ElasticSearch full-text search engine and Mongoid documents
+    seemless and simple.
+  }
+  gem.email = "omar.mekky@mashsolvents.com"
   gem.authors = ["Omar Mekky"]
   # Include your dependencies below. Runtime dependencies are required when using your gem,
   # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
