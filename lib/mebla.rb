@@ -1,5 +1,7 @@
 require "mongoid"
 require "slingshot"
+require "mebla/errors/mebla_error"
+require "mebla/mongoid/mebla"
 
 module Mebla #:nodoc:
   def self.mongoid?

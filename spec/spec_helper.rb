@@ -7,6 +7,7 @@ require 'bundler'
 Bundler.require :default, :development
 
 require "#{File.dirname(__FILE__)}/mebla_helper"
+require "#{File.dirname(__FILE__)}/../lib/mebla"
 
 # Requires supporting files with custom matchers and macros, etc,
 # in ./support/ and its subdirectories.
@@ -17,6 +18,8 @@ RSpec.configure do |config|
 
   mebla = MeblaHelper.new
   mebla.setup_mongoid
+  
+  require "#{File.dirname(__FILE__)}/fixtures/models"
   
   config.before(:suite) do
     DatabaseCleaner.strategy = :truncation
