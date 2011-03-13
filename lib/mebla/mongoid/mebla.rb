@@ -31,7 +31,7 @@ module Mongoid  # :nodoc:
     
     module ClassMethods
       # Defines which fields should be indexed and searched
-      # @param fields to index and search in
+      # @param [*opts] fields
       # @return [nil]
       #
       # Example:: 
