@@ -17,7 +17,7 @@ Gem::Specification.new do |s|
   s.email = %q{omar.mekky@mashsolvents.com}
   s.extra_rdoc_files = [
     "LICENSE.txt",
-    "README.rdoc"
+    "README.md"
   ]
   s.files = [
     ".document",
@@ -25,12 +25,16 @@ Gem::Specification.new do |s|
     "Gemfile",
     "Gemfile.lock",
     "LICENSE.txt",
-    "README.rdoc",
+    "README.md",
     "Rakefile",
     "VERSION",
     "lib/mebla.rb",
+    "lib/mebla/context.rb",
     "lib/mebla/errors/mebla_error.rb",
     "lib/mebla/mongoid/mebla.rb",
+    "lib/mebla/railtie.rb",
+    "lib/mebla/tasks.rb",
+    "mebla.gemspec",
     "spec/fixtures/models.rb",
     "spec/fixtures/mongoid.yml",
     "spec/mebla_helper.rb",
@@ -55,7 +59,7 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::VERSION) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<slingshot-rb>, ["~> 0.0.5"])
+      s.add_runtime_dependency(%q<mebla>, [">= 0"])
       s.add_development_dependency(%q<rspec>, ["~> 2.3.0"])
       s.add_development_dependency(%q<yard>, ["~> 0.6.0"])
       s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
@@ -64,6 +68,13 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<mongoid>, ["= 2.0.0.rc.7"])
       s.add_development_dependency(%q<bson>, ["= 1.2.0"])
       s.add_development_dependency(%q<bson_ext>, ["= 1.2.0"])
+      s.add_development_dependency(%q<mongoid-rspec>, ["= 1.4.1"])
+      s.add_development_dependency(%q<database_cleaner>, ["= 0.6.4"])
+      s.add_development_dependency(%q<rspec>, ["~> 2.3.0"])
+      s.add_development_dependency(%q<yard>, ["~> 0.6.0"])
+      s.add_development_dependency(%q<bundler>, ["~> 1.0.0"])
+      s.add_development_dependency(%q<jeweler>, ["~> 1.5.2"])
+      s.add_development_dependency(%q<rcov>, [">= 0"])
       s.add_development_dependency(%q<mongoid-rspec>, ["= 1.4.1"])
       s.add_development_dependency(%q<database_cleaner>, ["= 0.6.4"])
       s.add_runtime_dependency(%q<slingshot-rb>, ["~> 0.0.5"])
@@ -77,8 +88,9 @@ Gem::Specification.new do |s|
       s.add_development_dependency(%q<rcov>, [">= 0"])
       s.add_development_dependency(%q<mongoid-rspec>, ["= 1.4.1"])
       s.add_development_dependency(%q<database_cleaner>, ["= 0.6.4"])
+      s.add_development_dependency(%q<bluecloth>, ["~> 2.1.0"])
     else
-      s.add_dependency(%q<slingshot-rb>, ["~> 0.0.5"])
+      s.add_dependency(%q<mebla>, [">= 0"])
       s.add_dependency(%q<rspec>, ["~> 2.3.0"])
       s.add_dependency(%q<yard>, ["~> 0.6.0"])
       s.add_dependency(%q<bundler>, ["~> 1.0.0"])
@@ -87,6 +99,13 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<mongoid>, ["= 2.0.0.rc.7"])
       s.add_dependency(%q<bson>, ["= 1.2.0"])
       s.add_dependency(%q<bson_ext>, ["= 1.2.0"])
+      s.add_dependency(%q<mongoid-rspec>, ["= 1.4.1"])
+      s.add_dependency(%q<database_cleaner>, ["= 0.6.4"])
+      s.add_dependency(%q<rspec>, ["~> 2.3.0"])
+      s.add_dependency(%q<yard>, ["~> 0.6.0"])
+      s.add_dependency(%q<bundler>, ["~> 1.0.0"])
+      s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
+      s.add_dependency(%q<rcov>, [">= 0"])
       s.add_dependency(%q<mongoid-rspec>, ["= 1.4.1"])
       s.add_dependency(%q<database_cleaner>, ["= 0.6.4"])
       s.add_dependency(%q<slingshot-rb>, ["~> 0.0.5"])
@@ -100,9 +119,10 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<rcov>, [">= 0"])
       s.add_dependency(%q<mongoid-rspec>, ["= 1.4.1"])
       s.add_dependency(%q<database_cleaner>, ["= 0.6.4"])
+      s.add_dependency(%q<bluecloth>, ["~> 2.1.0"])
     end
   else
-    s.add_dependency(%q<slingshot-rb>, ["~> 0.0.5"])
+    s.add_dependency(%q<mebla>, [">= 0"])
     s.add_dependency(%q<rspec>, ["~> 2.3.0"])
     s.add_dependency(%q<yard>, ["~> 0.6.0"])
     s.add_dependency(%q<bundler>, ["~> 1.0.0"])
@@ -111,6 +131,13 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<mongoid>, ["= 2.0.0.rc.7"])
     s.add_dependency(%q<bson>, ["= 1.2.0"])
     s.add_dependency(%q<bson_ext>, ["= 1.2.0"])
+    s.add_dependency(%q<mongoid-rspec>, ["= 1.4.1"])
+    s.add_dependency(%q<database_cleaner>, ["= 0.6.4"])
+    s.add_dependency(%q<rspec>, ["~> 2.3.0"])
+    s.add_dependency(%q<yard>, ["~> 0.6.0"])
+    s.add_dependency(%q<bundler>, ["~> 1.0.0"])
+    s.add_dependency(%q<jeweler>, ["~> 1.5.2"])
+    s.add_dependency(%q<rcov>, [">= 0"])
     s.add_dependency(%q<mongoid-rspec>, ["= 1.4.1"])
     s.add_dependency(%q<database_cleaner>, ["= 0.6.4"])
     s.add_dependency(%q<slingshot-rb>, ["~> 0.0.5"])
@@ -124,6 +151,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<rcov>, [">= 0"])
     s.add_dependency(%q<mongoid-rspec>, ["= 1.4.1"])
     s.add_dependency(%q<database_cleaner>, ["= 0.6.4"])
+    s.add_dependency(%q<bluecloth>, ["~> 2.1.0"])
   end
 end
 

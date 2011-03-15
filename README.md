@@ -1,9 +1,11 @@
-= Mebla
+Mebla
+====
 
-Mebla is an {http://www.elasticsearch.org elasticsearch} wrapper for {http://http://mongoid.org Mongoid} based on 
-{https://github.com/karmi/slingshot Slingshot}
+Mebla is an [elasticsearch](http://www.elasticsearch.org) wrapper for [Mongoid](http://mongoid.org) based on 
+[Slingshot](https://github.com/karmi/slingshot).
 
-== Contributing to Mebla
+Contributing to Mebla
+----------------------------
  
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
@@ -13,7 +15,8 @@ Mebla is an {http://www.elasticsearch.org elasticsearch} wrapper for {http://htt
 * Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
 * Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
 
-== Copyright
+Copyright
+-------------
 
 Copyright (c) 2011 Omar Mekky. See LICENSE.txt for
 further details.

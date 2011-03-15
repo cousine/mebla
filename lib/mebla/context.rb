@@ -24,7 +24,7 @@ module Mebla
     end
     
     # Creates the indecies and indexes the data for all models or a list of models given
-    # @params [*models] a list of symbols each representing a model name to be indexed
+    # @param [*models] a list of symbols each representing a model name to be indexed
     # @return [nil]
     def index_data(*models)
       if models.empty?
@@ -79,7 +79,7 @@ module Mebla
     end
     
     # Rebuilds the indecies and indexes the data for all models or a list of models given
-    # @params [*models] a list of symbols each representing a model name to rebuild it's index
+    # @param [*models] a list of symbols each representing a model name to rebuild it's index
     # @return [nil]
     def reindex_data(*models)
       if models.empty?
