@@ -1,6 +1,6 @@
 = Mebla
 
-Mebla is an {http://www.elasticsearch.org/ elasticsearch} wrapper for {http://http://mongoid.org/ Mongoid} based on 
+Mebla is an {http://www.elasticsearch.org elasticsearch} wrapper for {http://http://mongoid.org Mongoid} based on 
 {https://github.com/karmi/slingshot Slingshot}
 
 == Contributing to Mebla

@@ -1,3 +1,13 @@
+PATH
+  remote: .
+  specs:
+    mebla (1.0.0)
+      bson (= 1.2.0)
+      bson_ext (= 1.2.0)
+      mongoid (= 2.0.0.rc.7)
+      slingshot-rb (~> 0.0.5)
+      slingshot-rb (~> 0.0.5)
+
 GEM
   remote: http://rubygems.org/
   specs:
@@ -59,9 +69,9 @@ DEPENDENCIES
   bundler (~> 1.0.0)
   database_cleaner (= 0.6.4)
   jeweler (~> 1.5.2)
+  mebla!
   mongoid (= 2.0.0.rc.7)
   mongoid-rspec (= 1.4.1)
   rcov
   rspec (~> 2.3.0)
-  slingshot-rb (~> 0.0.5)
   yard (~> 0.6.0)

@@ -1,8 +1,10 @@
-module Mongoid  # :nodoc:
+# @private
+module Mongoid
   # A wrapper for slingshot  elastic-search adapter for Mongoid
   module Mebla
     extend ActiveSupport::Concern
     included do
+      # Used to properly represent data types
       unless defined?(SLINGSHOT_TYPE_MAPPING)
         SLINGSHOT_TYPE_MAPPING = {
           'Date' => 'date',
@@ -23,9 +25,15 @@ module Mongoid  # :nodoc:
       cattr_accessor  :slingshot_index
       cattr_accessor  :whiny_indexing   # set to true to raise errors if indexing fails
       
+      # make sure critical data remain read only
+      private_class_method :"slingshot_index=", :"search_fields=", :"index_options=", :"index_mappings=",
+                                          :"embedded_parent_foreign_key=", :"embedded_parent="
+      
+      # add callbacks to synchronize modifications with elasticsearch
       after_save        :add_to_index
       before_destroy :remove_from_index
       
+      # by default if synchronizing fails no error is raised
       self.whiny_indexing = false
     end
     
@@ -119,40 +127,46 @@ module Mongoid  # :nodoc:
         
         # Initialize the index
         self.slingshot_index  = Slingshot::Index.new(self.slingshot_index_name)
+        
+        # Keep track of indexed models (for bulk indexing)
+        ::Mebla::Context.instance.add_indexed_model(self)
       end
       
-      # TODO: index the data
+      # TODO: Searching is incomplete
+      # Searches the model
+      # @return [Collection]
+      def search(query, &block)
+        if block_given?
+          Slingshot::Search::Search.new(self.slingshot_index_name, {}, &block).perform
+        else
+          Slingshot::Search::Search.new(self.slingshot_index_name).query do 
+            string(query)
+          end
+        end
+      end
+            
       # Deletes and rebuilds the index
+      # @note Doesn't index the data, use Mebla::Context#reindex_data to rebuild the index and index the data
       # @return [nil]
       def rebuild_index
         # Only rebuild if the index exists
-        raise ::Mebla::Errors::MeblaError.new("#{self.slingshot_index_name} does not exist !! use #create_index to create the index first.") unless self.index_exists?
-        # Prepare mappings
-        mappings = prepare_mappings
+        raise ::Mebla::Errors::MeblaError.new("#{self.slingshot_index_name} does not exist !! use #create_index to create the index first.") unless self.index_exists?        
         
-        # Create the index and keep track of it
+        # Delete the index
         self.slingshot_index.delete
-        self.slingshot_index.create :mappings => {
-          self.slingshot_type_name.to_sym => mappings
-        }
+        # Create the index
+        build_index
       end
-      
-      # TODO: index the data
+            
       # Creates and indexes the document
+      # @note Doesn't index the data, use Mebla::Context#index_data to create the index and index the data
       # @return [Boolean] true if operation is successful
       def create_index
         # Only create the index if it doesn't exist
         raise ::Mebla::Errors::MeblaError.new("#{self.slingshot_index_name} already exists !! use #rebuild_index to rebuild the index.") if self.index_exists?
-        # Prepare mappings
-        mappings = prepare_mappings
         
-        # Create the index and keep track of it        
-        result = self.slingshot_index.create :mappings => {
-          self.slingshot_type_name.to_sym => mappings
-        }        
-        
-        # Check if the index exists
-        self.index_exists?
+        # Create the index
+        build_index
       end
       
       # Deletes the index of the document
@@ -190,9 +204,25 @@ module Mongoid  # :nodoc:
       # @return [String]
       def slingshot_type_name #:nodoc:
         "#{self.model_name.underscore}"
-      end      
+      end
       
-      protected
+      # Enables the modification of records without indexing
+      # @return [nil]
+      # Example::
+      #  create record without it being indexed
+      #    Class.without_indexing do
+      #      create :title => "This is not indexed", :body => "Nothing will be indexed within this block"      
+      #    end
+      # @note you can skip indexing to create, update or delete records without affecting the index
+      def without_indexing(&block)
+        skip_callback(:save, :after, :add_to_index)
+        skip_callback(:destroy, :before, :remove_from_index)
+        yield
+        set_callback(:save, :after, :add_to_index)
+        set_callback(:destroy, :before, :remove_from_index)
+      end
+      
+      private
       # Prepare the mappings required for this document
       # @return [Hash]
       def prepare_mappings
@@ -207,6 +237,21 @@ module Mongoid  # :nodoc:
         mappings.merge!({
           :properties => self.index_mappings
         })
+      end
+            
+      # Builds the index according to the mappings set
+      # @return [Boolean] true if the index was created successfully, false otherwise
+      def build_index
+        # Prepare mappings
+        mappings = prepare_mappings
+        
+        # Create the index
+        self.slingshot_index.create :mappings => {
+          self.slingshot_type_name.to_sym => mappings
+        }
+        
+        # Check if the index exists
+        self.index_exists?
       end
     end
     
