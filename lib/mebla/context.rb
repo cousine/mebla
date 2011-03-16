@@ -93,10 +93,11 @@ module Mebla
         only_index.each do |model|
           # Get the class
           to_index = model.camelize.constantize
-          # Get the records
+          
+          # Get the records    
           entries = []
           unless to_index.embedded?
-            entries = to_index.all.only(to_index.search_fields)
+            entries = to_index.all.only(to_index.search_fields)            
           else
             parent = to_index.embedded_parent
             access_method = to_index.embedded_as
@@ -109,10 +110,18 @@ module Mebla
           # Build the queries for this model          
           entries.each do |document|
             attrs = document.attributes.dup # make sure we dont modify the document it self
-            attrs.delete("_id") # the id is already added in the meta data of the action part of the query
+            attrs["id"] = attrs.delete("_id") # the id is already added in the meta data of the action part of the query
             
-            # Build add to the bulk query
-            bulk_query << build_bulk_query(@slingshot_index_name, to_index.slingshot_type_name, document.id.to_s, attrs)
+            if document.embedded?
+              parent_id = document.send(document.class.embedded_parent_foreign_key.to_sym).id.to_s        
+              attrs[(document.class.embedded_parent_foreign_key + "_id").to_sym] = parent_id
+              
+              # Build add to the bulk query
+              bulk_query << build_bulk_query(@slingshot_index_name, to_index.slingshot_type_name, document.id.to_s, attrs, parent_id)
+            else
+              # Build add to the bulk query
+              bulk_query << build_bulk_query(@slingshot_index_name, to_index.slingshot_type_name, document.id.to_s, attrs)
+            end
           end
         end
       else
@@ -120,7 +129,7 @@ module Mebla
       end
       
       # Add a new line to the query
-      bulk_query << '\n'
+      bulk_query << '\n'      
       
       # Send the query
       response = Slingshot::Configuration.client.post "#{Mebla::Configuration.instance.url}/_bulk", bulk_query
@@ -130,10 +139,10 @@ module Mebla
         # Refresh the index
         refresh_index
       else
-        raise ::MeblaError::Errors::MeblaError.new("Indexing #{only_index.join(", ")} failed with the following response:\n #{response}")
+        raise ::Mebla::Errors::MeblaError.new("Indexing #{only_index.join(", ")} failed with the following response:\n #{response}")
       end
     rescue RestClient::Exception => error
-      raise ::MeblaError::Errors::MeblaError.new("Indexing #{only_index.join(", ")} failed with the following error: #{error.message}")
+      raise ::Mebla::Errors::MeblaError.new("Indexing #{only_index.join(", ")} failed with the following error: #{error.message}")
     end
     
     # Rebuilds the index and indexes the data for all models or a list of models given
@@ -165,12 +174,13 @@ module Mebla
       index_exists?
     end
     
+    # OPTIMIZE: should find a solution for not refreshing the index while indexing embedded documents
     # Builds a bulk index query
     # @return [String]
-    def build_bulk_query(index_name, type, id, attributes)
+    def build_bulk_query(index_name, type, id, attributes, parent = nil)
       attrs_to_json = attributes.collect{|k,v| "\"#{k}\" : \"#{v}\""}.join(", ")
       <<-eos
-        { "index" : { "_index" : "#{index_name}", "_type" : "#{type}", "_id" : "#{id}" } }
+        { "index" : { "_index" : "#{index_name}", "_type" : "#{type}", "_id" : "#{id}"#{", \"_parent\" : \"#{parent}\"" if parent}, "refresh" : "true"} }
         {#{attrs_to_json}}
       eos
     end
