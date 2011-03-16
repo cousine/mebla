@@ -1,7 +1,7 @@
 TODO for version 1.0.0
 ==============
 
-* add documentation for lib/mebla
+* <strike>add documentation for mebla in README.md</strike>
 * <strike>add logging capabilities</strike>
 
 Future plan

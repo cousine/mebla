@@ -75,5 +75,11 @@ module Mebla
     def each(&block)
       @entries.each(&block)
     end
+    
+    # Returns the item with the given index
+    # @param [Integer] index
+    def [](index)
+      @entries[index]
+    end
   end
 end

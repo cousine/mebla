@@ -1,0 +1,7 @@
+Description:
+    Generates mebla's configuration file.
+
+Example:
+    rails generate mebla:install
+
+    This will generate mebla's configuration file in config folder

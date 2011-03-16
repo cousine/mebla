@@ -24,7 +24,7 @@ Jeweler::Tasks.new do |gem|
   gem.authors = ["Omar Mekky"]
   # Include your dependencies below. Runtime dependencies are required when using your gem,
   # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
-  gem.add_runtime_dependency 'slingshot-rb', '~> 0.0.5'
+  gem.add_runtime_dependency 'slingshot-rb', '~> 0.0.6'
   gem.add_runtime_dependency 'mongoid', '2.0.0.rc.7'
   gem.add_runtime_dependency 'bson', '1.2.0'
   gem.add_runtime_dependency 'bson_ext', '1.2.0'

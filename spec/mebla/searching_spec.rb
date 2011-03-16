@@ -19,8 +19,32 @@ describe "Mebla" do
       results=MongoidAlpha.search do 
         query { string "name: Testing index" }
       end 
-      
+            
       results.first.class.should == MongoidAlpha
+    end
+    
+    describe "multiple types" do
+      before(:each) do
+        MongoidBeta.create! :name => "Testing index"
+      end
+      
+      it "should search and return all results of all class types" do        
+        results=Mebla.search do 
+          query { string "name: Testing index" }
+        end 
+        
+        results.count.should == 2
+        (results.each.collect{|e| e.class} & [MongoidAlpha, MongoidBeta]).should == [MongoidAlpha, MongoidBeta]
+      end
+      
+      it "should search and return only results from the searched class type" do        
+        results=MongoidAlpha.search do 
+          query { string "name: Testing index" }
+        end 
+        
+        results.count.should == 1
+        results.first.class.should == MongoidAlpha
+      end
     end
     
     describe "embedded documents" do

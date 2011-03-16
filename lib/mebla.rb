@@ -1,9 +1,5 @@
 require 'active_support'
 
-# --
-# TODO: add documentation
-# ++
-
 # @private
 module Mebla
   extend ActiveSupport::Autoload
@@ -100,5 +96,42 @@ module Mebla
     
     ::ActiveSupport::Notifications.
       instrument(hook, :message => message)
+  end  
+  
+  # Search the index using Slingshot search DSL
+  # @param type_names a string, symbol or array representing the models to be searcheds
+  # @return [ResultSet]
+  #
+  # Search for all documents with a field title with a value 'Testing Search'::
+  #
+  #  Mebla.search do
+  #   query do
+  #    string "title: Testing Search"
+  #   end
+  #  end
+  #
+  # @note For more information about Slingshot search DSL, check http://karmi.github.com/slingshot
+  def self.search(type_names = [], &block)
+    # Convert type names from string or symbol to array
+    type_names = case true
+      when type_names.is_a?(Symbol), type_names.is_a?(String)
+        [type_names]      
+      when type_names.is_a?(Array)
+        type_names.collect{|name| name.to_s}
+      else
+        []
+      end
+    # Create slingshot search object
+    search_obj = Slingshot::Search::Search.new(::Mebla.context.slingshot_index_name, {}, &block)
+    # Add a type filter to return only certain types
+    search_obj = search_obj.filter(:terms, :_type => type_names) unless type_names.empty?
+    # Log search query
+    log("Searching:\n#{search_obj.to_json.to_s}", :debug)
+    # Perform the search and parse the response
+    results  = Mebla::ResultSet.new(search_obj.perform.response)
+    # Log results statistics
+    log("Searched for:\n#{search_obj.to_json.to_s}\ngot #{results.total} in #{results.time}", :debug)
+    # Return the results
+    return results
   end
 end

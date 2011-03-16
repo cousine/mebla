@@ -1,0 +1,15 @@
+defaults: &defaults
+  host: localhost
+  port: 9200
+  
+development:
+  <<: *defaults
+  index: <%= app_name %>_development
+  
+test:
+  <<: *defaults
+  index: <%= app_name %>_test
+  
+production:
+  <<: *defaults
+  index: <%= app_name %>_production
