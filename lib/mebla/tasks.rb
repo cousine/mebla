@@ -1,4 +1,4 @@
-Mebla.cofigure do |config|
+Mebla.configure do |config|
   config.logger = Logger.new(STDOUT)
   config.setup_logger
 end

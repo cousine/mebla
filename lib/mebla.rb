@@ -1,4 +1,5 @@
 require 'active_support'
+require 'mebla/railtie' if defined?(Rails)
 
 # @private
 module Mebla

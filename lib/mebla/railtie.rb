@@ -10,7 +10,7 @@ module Mebla
       Mebla.configure do |config|
         # Open logfile
         config.logger = Logger.new(
-          open("#{Dir.pwd}/logs/#{Rails.env}.mebla.log", "a")
+          open("#{Dir.pwd}/log/#{Rails.env}.mebla.log", "a")
         )
         # Setup the log level
         config.logger.level = case app.config.log_level
