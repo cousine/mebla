@@ -6,6 +6,12 @@ class MeblaHelper
     @username = ""
     @password = ""
     
+    Mebla.configure do |config|
+      index = "mebla"
+      host = "localhost"
+      port = 9200
+    end
+    
     if File.exist?("spec/fixtures/mongoid.yml")
       config    = YAML.load(File.open("spec/fixtures/mongoid.yml"))
       @host     = config["host"]
@@ -23,5 +29,5 @@ class MeblaHelper
       config.allow_dynamic_fields = false
       config.master = Mongo::Connection.new.db(name)        
     end
-  end
+  end  
 end

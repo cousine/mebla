@@ -16,7 +16,7 @@ Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each {|f| require f}
 RSpec.configure do |config|
   require 'database_cleaner'
 
-  mebla = MeblaHelper.new
+  mebla = MeblaHelper.new  
   mebla.setup_mongoid
   
   require "#{File.dirname(__FILE__)}/fixtures/models"
@@ -28,5 +28,13 @@ RSpec.configure do |config|
 
   config.before(:each) do
     DatabaseCleaner.clean
+  end  
+  
+  config.before(:suite) do
+    Mebla.context.create_index
+  end
+  
+  config.after(:suite) do
+    Mebla.context.drop_index
   end
 end
