@@ -1,5 +1,9 @@
 # @private
 module Mongoid
+  # --
+  # TODO: add ability to index embedded documents (as part of the parent document)
+  # ++
+  
   # A wrapper for slingshot  elastic-search adapter for Mongoid
   module Mebla
     extend ActiveSupport::Concern
@@ -7,6 +11,7 @@ module Mongoid
       # Used to properly represent data types
       unless defined?(SLINGSHOT_TYPE_MAPPING)
         SLINGSHOT_TYPE_MAPPING = {
+          'Array' => 'array',
           'Date' => 'date',
           'DateTime' => 'date',
           'Time' => 'date',
@@ -87,10 +92,10 @@ module Mongoid
             self.embedded_as = relation[:inverse_of] || relation.inverse_setter.to_s.gsub(/=$/, '')            
             
             if self.embedded_as.blank?
-              raise ::Mebla::Errors::MeblaError.new("Couldn't infer #{embedor.to_s} inverse relation, please set :inverse_of option on the relation.")
+              raise ::Mebla::Errors::MeblaConfigurationException.new("Couldn't infer #{embedor.to_s} inverse relation, please set :inverse_of option on the relation.")
             end
           else
-            raise ::Mebla::Errors::MeblaError.new("#{self.model_name} is embedded: embedded_in option should be set to the parent class if the document is embedded.")
+            raise ::Mebla::Errors::MeblaConfigurationException.new("#{self.model_name} is embedded: embedded_in option should be set to the parent class if the document is embedded.")
           end
         end
         
@@ -193,14 +198,19 @@ module Mongoid
         to_index_hash[sfield] = self.attributes[sfield]
       end      
       
+      ::Mebla.log("Indexing #{self.class.slingshot_type_name}: #{to_index_hash.to_s}", :debug)
+      
       # Index the data under its correct type
-      ::Mebla.context.slingshot_index.store(self.class.slingshot_type_name.to_sym, to_index_hash)
+      response = ::Mebla.context.slingshot_index.store(self.class.slingshot_type_name.to_sym, to_index_hash)
+      
+      ::Mebla.log("Response for indexing #{self.class.slingshot_type_name}: #{response.to_s}", :debug)
       
       # Refresh the index
       ::Mebla.context.refresh_index
       return true
-    rescue => error      
-      raise error if self.class.whiny_indexing # whine when mebla is not able to index
+    rescue => error
+      raise_synchronization_exception(error)
+      
       return false
     end
         
@@ -208,14 +218,32 @@ module Mongoid
     # @return [Boolean] true if the operation is successful
     def remove_from_index
       return false unless ::Mebla.context.index_exists? # only try to index if the index exists      
+      
+      ::Mebla.log("Removing #{self.class.slingshot_type_name} with id: #{self.id.to_s}", :debug)
+
       # Delete the document
       response = Slingshot::Configuration.client.delete "#{::Mebla::Configuration.instance.url}/#{::Mebla.context.slingshot_index_name}/#{self.class.slingshot_type_name}/#{self.id.to_s}"
+      
+      ::Mebla.log("Response for removing #{self.class.slingshot_type_name}: #{response.to_s}", :debug)
+      
       # Refresh the index
       ::Mebla.context.refresh_index
       return true
     rescue => error
-      raise error if self.class.whiny_indexing # whine when mebla is not able to index
+      raise_synchronization_exception(error)
+      
       return false
+    end
+    
+    def raise_synchronization_exception(error)
+      exception_message = "#{self.class.slingshot_type_name} synchronization failed with the following error: #{error.message}"
+      if self.class.whiny_indexing
+        # Whine when mebla is not able to synchronize
+        raise ::Mebla::Errors::MeblaSynchronizationException.new(exception_message)
+      else
+        # Whining is not allowed, silently log the exception
+        ::Mebla.log(exception_message, :warn)
+      end
     end
   end
 end

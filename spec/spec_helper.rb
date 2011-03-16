@@ -21,6 +21,16 @@ RSpec.configure do |config|
   
   require "#{File.dirname(__FILE__)}/fixtures/models"
   
+  config.before(:all) do
+   %w(tmp tmp/config tmp/log).each do |path|
+      FileUtils.mkdir_p "#{Dir.pwd}/#{path}"
+    end
+  end
+  
+  config.after(:all) do
+    FileUtils.rm_r "#{Dir.pwd}/tmp" rescue nil
+  end
+  
   config.before(:suite) do
     DatabaseCleaner.strategy = :truncation
     DatabaseCleaner.orm = "mongoid"

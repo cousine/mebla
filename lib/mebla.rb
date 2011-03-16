@@ -1,15 +1,25 @@
-require "mongoid"
-require "slingshot"
-require "mebla/configuration"
-require "mebla/context"
-require "mebla/result_set"
-require "mebla/errors/mebla_error"
-require "mebla/mongoid/mebla"
-require "mebla/railtie" if defined?(Rails)
+require 'active_support'
 
+# --
 # TODO: add documentation
+# ++
+
 # @private
 module Mebla
+  extend ActiveSupport::Autoload
+  
+  # Dependencies
+  autoload :Mongoid,  'mongoid'
+  autoload :Slingshot,  'slingshot'
+  # Main modules
+  autoload :Configuration
+  autoload :Context
+  autoload :LogSubscriber
+  autoload :ResultSet
+  # Errors
+  autoload :Errors  
+  # Mongoid extensions
+  autoload :Mebla,  'mebla/mongoid/mebla'  
   
   @@mebla_mutex = Mutex.new
   @@context      = nil
@@ -68,5 +78,27 @@ module Mebla
   #   end
   def self.configure(&block)
     yield Mebla::Configuration.instance
+  end
+  
+  
+  # Writes out a message to the log file according to the level given
+  # @note If no level is given a message of type Logger::UNKOWN will be written to the log file
+  # @param [String] message
+  # @param [Symbol] level can be :debug, :warn or :info
+  # @return [nil]
+  def self.log(message, level = :none)    
+    case level
+    when :debug
+      hook = "mebla_debug.mebla"
+    when :warn
+      hook = "mebla_warn.mebla"
+    when :info
+      hook = "mebla_info.mebla"
+    else
+      hook = "mebla_unkown.mebla"
+    end
+    
+    ::ActiveSupport::Notifications.
+      instrument(hook, :message => message)
   end
 end

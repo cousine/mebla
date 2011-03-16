@@ -5,15 +5,17 @@ module Mebla
     include Enumerable
     attr_reader :entries, :facets, :time, :total
     
+    # --
     # OPTIMIZE: needs major refractoring
+    # ++
+    
     # Creates a new result set from an elasticsearch response hash
     # @param response
     def initialize(response)
       # Keep the query time
       @time = response['took'] 
       # Keep the facets
-      @facets = response['facets']
-      # TODO: log an out of sync warning if total doesnt match the entries' count
+      @facets = response['facets']      
       # Keep the query total to check against the count 
       @total = response['hits']['total']       
       
@@ -64,7 +66,9 @@ module Mebla
           # Retrieve the results from the database
           @entries += parent.send(access_method.to_sym).any_in(:_id => ids.values.first).entries
         end
-      end        
+      end
+            
+      Mebla.log("WARNING: Index not synchronized with the database; index total hits: #{@total}, retrieved documents: #{self.count}", :warn) if @total != self.count
     end
     
     # Iterates over the collection    
