@@ -1,7 +1,9 @@
 require 'erb'
 require 'singleton'
 
+# @private
 module Mebla
+  # Parses the configuration file and holds important configuration attributes  
   class Configuration
     include Singleton
     

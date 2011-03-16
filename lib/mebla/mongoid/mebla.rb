@@ -41,30 +41,31 @@ module Mongoid
       # Defines which fields should be indexed and searched
       # @param [*opts] fields
       # @return [nil]
-      #
-      # Example:: 
-      #  Defines a search index on a normal document with custom mappings on "body"
-      #   class Document
-      #    include Mongoid::Document
-      #    include Mongoid::Mebla
-      #    field :title
-      #    field :body
-      #    field :publish_date, :type => Date
-      #    ...
-      #    search_in :title, :publish_date, :body => { :boost => 2.0, :analyzer => 'snowball' }
-      #   end
       #      
-      #  Defines a search index on an embedded document with a single parent and custom mappings on "body"
-      #   class Document
-      #    include Mongoid::Document
-      #    include Mongoid::Mebla
-      #    field :title
-      #    field :body
-      #    field :publish_date, :type => Date
-      #    ...
-      #    embedded_in :category
-      #    search_in :title, :publish_date, :body => { :boost => 2.0, :analyzer => 'snowball' }, :embedded_in => :category
-      #   end      
+      # Defines a search index on a normal document with custom mappings on "body"::
+      #
+      #  class Document
+      #   include Mongoid::Document
+      #   include Mongoid::Mebla
+      #   field :title
+      #   field :body
+      #   field :publish_date, :type => Date
+      #   #...
+      #   search_in :title, :publish_date, :body => { :boost => 2.0, :analyzer => 'snowball' }
+      #  end
+      #      
+      # Defines a search index on an embedded document with a single parent and custom mappings on "body"::
+      #
+      #  class Document
+      #   include Mongoid::Document
+      #   include Mongoid::Mebla
+      #   field :title
+      #   field :body
+      #   field :publish_date, :type => Date
+      #   #...
+      #   embedded_in :category
+      #   search_in :title, :publish_date, :body => { :boost => 2.0, :analyzer => 'snowball' }, :embedded_in => :category
+      #  end      
       def search_in(*opts)
         # Extract advanced indeces
         options = opts.extract_options!.symbolize_keys
