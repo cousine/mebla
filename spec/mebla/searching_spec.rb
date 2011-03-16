@@ -34,7 +34,7 @@ describe "Mebla" do
         end 
         
         results.count.should == 2
-        (results.each.collect{|e| e.class} & [MongoidAlpha, MongoidBeta]).should == [MongoidAlpha, MongoidBeta]
+        (results.each.collect{|e| e.class} & [MongoidAlpha, MongoidBeta]).should =~ [MongoidAlpha, MongoidBeta]
       end
       
       it "should search and return only results from the searched class type" do        
