@@ -129,6 +129,10 @@ module Mebla
             attrs = document.attributes.dup # make sure we dont modify the document it self
             attrs["id"] = attrs.delete("_id") # the id is already added in the meta data of the action part of the query
             
+            # only index search fields
+            attrs.select!{|field, value| document.class.search_fields.include?(field.to_sym)}
+            
+            # If embedded get the parent id
             if document.embedded?
               parent_id = document.send(document.class.embedded_parent_foreign_key.to_sym).id.to_s        
               attrs[(document.class.embedded_parent_foreign_key + "_id").to_sym] = parent_id
@@ -217,10 +221,10 @@ module Mebla
     # Builds a bulk index query
     # @return [String]
     def build_bulk_query(index_name, type, id, attributes, parent = nil)
-      attrs_to_json = attributes.collect{|k,v| "\"#{k}\" : \"#{v}\""}.join(", ")
+      attrs_to_json = ActiveSupport::JSON.encode(attributes).gsub(/\n/, " ")
       <<-eos
-        { "index" : { "_index" : "#{index_name}", "_type" : "#{type}", "_id" : "#{id}"#{", \"_parent\" : \"#{parent}\"" if parent}, "refresh" : "true"} }
-        {#{attrs_to_json}}
+        { "index" : { "_index" : "#{index_name}", "_type" : "#{type}", "_id" : "#{id}"#{", \"_parent\" : \"#{parent}\"" if parent}, "refresh" : "true"} }        
+        #{attrs_to_json}
       eos
     end
   end
