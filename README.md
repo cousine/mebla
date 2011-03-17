@@ -87,50 +87,26 @@ This will index all comments and make it available for searching directly throug
 Mebla supports two types of search, index search and model search; in index search Mebla searches
 the index and returns all matching documents regardless of their types, in model search however
 Mebla searches the index and returns matching documents of the model(s) type(s).
-documents
-
-Mebla performs search using [Slingshot's searching DSL](http://karmi.github.com/slingshot/), I encourage
-you to check the tutorial to have a broader view of slingshot's capabilities.
 
 #### Index searching
 
 Using the same models we defined above, we can search for all posts and comments with the author "cousine":
 
-    Mebla.search do
-      query do
-        string "author: cousine"
-      end
-    end
+    Mebla.search "author: cousine"
 
 This will return all documents with an author set to "cousine" regardless of their type, if we however want to
 search only Posts and Comments, we would explicitly tell Mebla:
 
-    Mebla.search [:post, :comment] do 
-      query { string "author: cousine" }
-    end
-    
-As shown above, you can also use the shorthand notation of ruby blocks.
+    Mebla.search "author: cousine", [:post, :comment]
 
 #### Model searching
 
 Instead of searching all models like index searching, we can search one model only:
 
-    Post.search do
-      query { string "title: Testing Search" }
-      
-      filter :term, :author => "cousine"
-      filter :terms, :tags => ["ruby", "rails"]
-      
-      sort { publish_date "desc" }
-      
-      facet 'tags' do
-        terms :tags, :global => true
-      end
-      
-      facet 'authors' do
-        terms :author
-      end
-    end
+    Post.search("title: Testing Search").desc(:publish_date).only(
+      :author => ["cousine"], 
+      :tags => ["ruby", "rails"]
+    ).facet('tags', :tags, :global => true).facet('authors', :author)
     
 In the above example we are taking full advantage of slingshot's searching capabilities, 
 we are getting all posts with the title "Testing Search", filtering the results with author 
@@ -147,28 +123,14 @@ In the example above we are retrieving two facets, "tags" and "authors"; "tags" 
 which means that we want to get the counts of posts for each tag over the whole index, "authors"
 however will only get the count of posts matching the search query for each author.
 
-You can find more about searching [here](http://karmi.github.com/slingshot/)
-
 #### Retrieving results
 
 To retrieve the results of the model search we performed above we would simply:
 
-    hits = Post.search do
-      query { string "title: Testing Search" }
-      
-      filter :term, :author => "cousine"
-      filter :terms, :tags => ["ruby", "rails"]
-      
-      sort { publish_date "desc" }
-      
-      facet 'tags' do
-        terms :tags, :global => true
-      end
-      
-      facet 'authors' do
-        terms :author
-      end
-    end
+    hits = Post.search("title: Testing Search").desc(:publish_date).only(
+      :author => ["cousine"], 
+      :tags => ["ruby", "rails"]
+    ).facet('tags', :tags, :global => true).facet('authors', :author)
     
     hits.each do |hit|
       puts hit.title

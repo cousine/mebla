@@ -8,17 +8,13 @@ describe "Mebla" do
     end
     
     it "should search and return the only relevant result" do
-      results=MongoidAlpha.search do 
-        query { string "name: Testing index" }
-      end          
+      results=MongoidAlpha.search "name: Testing index"      
       
       results.count.should == 1          
     end
     
     it "should search and return the only relevant result, and cast it into the correct class type" do
-      results=MongoidAlpha.search do 
-        query { string "name: Testing index" }
-      end 
+      results=MongoidAlpha.search "name: Testing index"
             
       results.first.class.should == MongoidAlpha
     end
@@ -29,18 +25,14 @@ describe "Mebla" do
       end
       
       it "should search and return all results of all class types" do        
-        results=Mebla.search do 
-          query { string "name: Testing index" }
-        end 
+        results=Mebla.search  "name: Testing index"        
         
         results.count.should == 2
         (results.each.collect{|e| e.class} & [MongoidAlpha, MongoidBeta]).should =~ [MongoidAlpha, MongoidBeta]
       end
       
       it "should search and return only results from the searched class type" do        
-        results=MongoidAlpha.search do 
-          query { string "name: Testing index" }
-        end 
+        results=MongoidAlpha.search "name: Testing index"        
         
         results.count.should == 1
         results.first.class.should == MongoidAlpha
@@ -54,19 +46,47 @@ describe "Mebla" do
       end
       
       it "should search and return the only relevant result" do
-        results=MongoidGamma.search do 
-          query { string "name: Embedded" }
-        end 
+        results=MongoidGamma.search "name: Embedded"        
         
         results.count.should == 1
       end
       
       it "should search and return the only relevant result, and cast it into the correct class type" do
-        results=MongoidGamma.search do 
-          query { string "name: Embedded" }
-        end 
+        results=MongoidGamma.search "name: Embedded"        
         
         results.first.class.should == MongoidGamma
+      end
+    end
+    
+    describe "with options" do
+      before(:each) do        
+        beta = MongoidBeta.create! :name => "Different map"
+        beta.mongoid_gammas.create :name => "Testing index 2", :value => 2
+      end
+      
+      it "should sort descending according to the criteria defined" do
+        Mebla.search("Testing index").desc(:value).first.class.should == MongoidGamma
+      end
+      
+      it "should sort ascending according to the criteria defined" do
+        Mebla.search("Testing index").asc(:value).first.class.should == MongoidAlpha
+      end
+      
+      it "should search and only return results matching the term defined" do
+        Mebla.search.term(:name, "index").count.should == 2
+      end
+      
+      it "should search and only return results matching the terms defined" do
+        Mebla.search.terms(:name, ["index", "map"]).count.should == 3
+      end
+      
+      it "should search and filter results according to the filters defined" do
+        Mebla.search.terms(:name, ["index", "map"]).only(:value => [1]).count.should == 1
+      end
+      
+      it "should search and return results along with facets" do
+        results = Mebla.search.terms(:name, ["index", "map"]).facet("values", :value)        
+        results.facets["values"]["terms"].count.should == 2
       end
     end
   end  

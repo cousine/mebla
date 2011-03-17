@@ -33,5 +33,5 @@ class MongoidGamma
   
   embedded_in :mongoid_beta
   
-  search_in :name, :embedded_in => :mongoid_beta
+  search_in :name, :value, :embedded_in => :mongoid_beta
 end

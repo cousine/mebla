@@ -13,10 +13,14 @@ module Mebla
   autoload :Context
   autoload :LogSubscriber
   autoload :ResultSet
+  autoload :Search
   # Errors
-  autoload :Errors  
+  autoload :Errors
   # Mongoid extensions
   autoload :Mebla,  'mebla/mongoid/mebla'  
+    
+  # Register the logger
+  Mebla::LogSubscriber.attach_to :mebla
   
   @@mebla_mutex = Mutex.new
   @@context      = nil
@@ -79,7 +83,7 @@ module Mebla
   
   
   # Writes out a message to the log file according to the level given
-  # @note If no level is given a message of type Logger::UNKOWN will be written to the log file
+  # @note If no level is given a message of type Logger::UNKNOWN will be written to the log file
   # @param [String] message
   # @param [Symbol] level can be :debug, :warn or :info
   # @return [nil]
@@ -92,47 +96,22 @@ module Mebla
     when :info
       hook = "mebla_info.mebla"
     else
-      hook = "mebla_unkown.mebla"
+      hook = "mebla_unknown.mebla"
     end
     
     ::ActiveSupport::Notifications.
       instrument(hook, :message => message)
   end  
   
-  # Search the index using Slingshot search DSL
-  # @param type_names a string, symbol or array representing the models to be searcheds
-  # @return [ResultSet]
+  # Search the index
+  # @param [String] query a string representing the search query
+  # @param [String, Symbol, Array] type_names a string, symbol or array representing the models to be searcheds
+  # @return [Mebla::Search]
   #
-  # Search for all documents with a field title with a value 'Testing Search'::
+  # Search for all documents with a field 'title' with a value 'Testing Search'::
   #
-  #  Mebla.search do
-  #   query do
-  #    string "title: Testing Search"
-  #   end
-  #  end
-  #
-  # @note For more information about Slingshot search DSL, check http://karmi.github.com/slingshot
-  def self.search(type_names = [], &block)
-    # Convert type names from string or symbol to array
-    type_names = case true
-      when type_names.is_a?(Symbol), type_names.is_a?(String)
-        [type_names]      
-      when type_names.is_a?(Array)
-        type_names.collect{|name| name.to_s}
-      else
-        []
-      end
-    # Create slingshot search object
-    search_obj = Slingshot::Search::Search.new(::Mebla.context.slingshot_index_name, {}, &block)
-    # Add a type filter to return only certain types
-    search_obj = search_obj.filter(:terms, :_type => type_names) unless type_names.empty?
-    # Log search query
-    log("Searching:\n#{search_obj.to_json.to_s}", :debug)
-    # Perform the search and parse the response
-    results  = Mebla::ResultSet.new(search_obj.perform.response)
-    # Log results statistics
-    log("Searched for:\n#{search_obj.to_json.to_s}\ngot #{results.total} in #{results.time}", :debug)
-    # Return the results
-    return results
+  #  Mebla.search "title: Testing Search"  
+  def self.search(query = "", type_names = nil)
+    Mebla::Search.new(query, type_names)
   end
 end

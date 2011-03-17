@@ -11,27 +11,27 @@ module Mebla
 
     # Error message
     def mebla_error(event)
-      error_red event.payload[:message]
+      error_red event.payload[:message]      
     end
     
     # Info message    
     def mebla_info(event)
-      info_blue event.payload[:message]
+      info_blue event.payload[:message]      
     end
     
     # Fatal message
     def mebla_fatal(event)
-      fatal_magenta event.payload[:message]
+      fatal_magenta event.payload[:message]      
     end
 
     # Warning message
     def mebla_warn(event)
-      warn_yellow event.payload[:message]
+      warn_yellow event.payload[:message]      
     end
     
-    # Unkown message
-    def mebla_unkown(event)
-      unkown event.payload[:message]
+    # Unknown message
+    def mebla_unknown(event)
+      unknown event.payload[:message]      
     end
     
     # --
@@ -42,7 +42,7 @@ module Mebla
     
     # Print a debug message to the log file
     def debug_green(msg)
-      debug color(msg, LogSubscriber::Green)
+      debug color(msg, LogSubscriber::GREEN)
     end
     
     # Print an error message to the log file
@@ -52,7 +52,7 @@ module Mebla
     
     # Print an info message to the log file
     def info_blue(msg)
-      ingo color(msg, LogSubscriber::BLUE)
+      info color(msg, LogSubscriber::BLUE)
     end
     
     # Print a fatal message to the log file
@@ -67,11 +67,8 @@ module Mebla
     
     # Returns the main logger for Mebla
     # @return [Logger]
-    def logger
+    def self.logger
       Mebla::Configuration.instance.logger
     end
   end    
 end
-
-# Register the logger
-Mebla::LogSubscriber.attach_to :mebla

@@ -123,20 +123,15 @@ module Mongoid
         ::Mebla.context.add_indexed_model(self, self.slingshot_type_name.to_sym => prepare_mappings)
       end
             
-      # Searches the model using Slingshot search DSL
-      # @return [ResultSet]
+      # Searches the model using Slingshot search DSL      
+      # @param [String] query a string representing the search query  
+      # @return [Mebla::Search]
       #
-      # Search for posts with the title 'Testing Search'::
+      # Search for all posts with a field 'title' of value 'Testing Search'::
       #
-      #  Post.search do
-      #   query do
-      #    string "title: Testing Search"
-      #   end
-      #  end
-      #
-      # @note For more information about Slingshot search DSL, check http://karmi.github.com/slingshot
-      def search(&block)
-        ::Mebla.search(self.slingshot_type_name, &block)
+      #  Post.search "title: Testing Search" 
+      def search(query = "")
+        ::Mebla.search(query, self.slingshot_type_name)
       end
       
       # Retrieves the type name of the model 

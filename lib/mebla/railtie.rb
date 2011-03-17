@@ -9,26 +9,26 @@ module Mebla
      initializer "mebla.set_configs" do |app|
       Mebla.configure do |config|
         # Open logfile
-        config.logger = Logger.new(
+        config.logger = ActiveSupport::BufferedLogger.new(
           open("#{Dir.pwd}/log/#{Rails.env}.mebla.log", "a")
         )
         # Setup the log level
         config.logger.level = case app.config.log_level
           when :info
-            Logger::INFO
+            ActiveSupport::BufferedLogger::Severity::INFO
           when :warn
-            Logger::WARN          
+            ActiveSupport::BufferedLogger::Severity::WARN          
           when :error
-            Logger::ERROR
+            ActiveSupport::BufferedLogger::Severity::ERROR
           when :fatal
-            Logger::FATAL
+            ActiveSupport::BufferedLogger::Severity::FATAL
           else
-            Logger::DEBUG
+            ActiveSupport::BufferedLogger::Severity::DEBUG
           end
           
         config.setup_logger
       end
-    end
+    end    
     
     # Rake tasks
     rake_tasks do

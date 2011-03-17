@@ -30,9 +30,9 @@ module Mebla
     # @return [nil]
     def rebuild_index
       # Only rebuild if the index exists
-      raise ::Mebla::Errors::MeblaIndexException.new("#{@slingshot_index_name} does not exist !! use #create_index to create the index first.") unless index_exists?
+      raise Mebla::Errors::MeblaIndexException.new("#{@slingshot_index_name} does not exist !! use #create_index to create the index first.") unless index_exists?
 
-      ::Mebla.log("Rebuilding index")      
+      Mebla.log("Rebuilding index")      
       
       # Delete the index
       if drop_index
@@ -46,9 +46,9 @@ module Mebla
     # @return [Boolean] true if operation is successful
     def create_index
       # Only create the index if it doesn't exist
-      raise ::Mebla::Errors::MeblaIndexException.new("#{@slingshot_index_name} already exists !! use #rebuild_index to rebuild the index.") if index_exists?
+      raise Mebla::Errors::MeblaIndexException.new("#{@slingshot_index_name} already exists !! use #rebuild_index to rebuild the index.") if index_exists?
       
-      ::Mebla.log("Creating index")
+      Mebla.log("Creating index")
       
       # Create the index
       build_index
@@ -60,12 +60,12 @@ module Mebla
       # Only drop the index if it exists
       return true unless index_exists?
       
-      ::Mebla.log("Dropping index: #{self.slingshot_index_name}", :debug)
+      Mebla.log("Dropping index: #{self.slingshot_index_name}", :debug)
       
       # Drop the index
       result = @slingshot_index.delete
       
-      ::Mebla.log("Dropped #{self.slingshot_index_name}: #{result.to_s}", :debug)
+      Mebla.log("Dropped #{self.slingshot_index_name}: #{result.to_s}", :debug)
       
       # Check that the index doesn't exist
       !index_exists?
@@ -86,13 +86,13 @@ module Mebla
     # @param *models a list of symbols each representing a model name to be indexed
     # @return [nil]
     def index_data(*models)
-      if models.empty?
+      if models.nil? || models.empty?
         only_index = @indexed_models
       else
         only_index = models.collect{|m| m.to_s}
       end
       
-      ::Mebla.log("Indexing #{only_index.join(", ")}", :debug)
+      Mebla.log("Indexing #{only_index.join(", ")}", :debug)
       
       # Build up a bulk query to save processing and time
       bulk_query = ""
@@ -103,7 +103,7 @@ module Mebla
       if create_index
         # Start collecting documents
         only_index.each do |model|
-          ::Mebla.log("Indexing: #{model}")
+          Mebla.log("Indexing: #{model}")
           # Get the class
           to_index = model.camelize.constantize
           
@@ -141,13 +141,10 @@ module Mebla
           end
         end
       else
-        raise ::Mebla::Errors::MeblaIndexException.new("Could not create #{@slingshot_index_name}!!!")
-      end
+        raise Mebla::Errors::MeblaIndexException.new("Could not create #{@slingshot_index_name}!!!")
+      end      
       
-      # Add a new line to the query
-      bulk_query << '\n'
-      
-      ::Mebla.log("Bulk indexing:\n#{bulk_query}", :debug)
+      Mebla.log("Bulk indexing:\n#{bulk_query}", :debug)      
       
       # Send the query
       response = Slingshot::Configuration.client.post "#{Mebla::Configuration.instance.url}/_bulk", bulk_query
@@ -155,54 +152,58 @@ module Mebla
       # Only refresh the index if no error ocurred
       unless response =~ /error/                              
         # Log results
-        ::Mebla.log("Indexed #{only_index.count} model(s) to #{self.slingshot_index_name}: #{response}")
-        ::Mebla.log("Indexing Report:")
+        Mebla.log("Indexed #{only_index.count} model(s) to #{self.slingshot_index_name}: #{response}")
+        Mebla.log("Indexing Report:")
         indexed_count.each do |model_name, count|
-          ::Mebla.log("Indexed #{model_name}: #{count} document(s)")
+          Mebla.log("Indexed #{model_name}: #{count} document(s)")
         end
         
         # Refresh the index
         refresh_index
       else
-        raise ::Mebla::Errors::MeblaIndexException.new("Indexing #{only_index.join(", ")} failed with the following response:\n #{response}")
+        raise Mebla::Errors::MeblaIndexException.new("Indexing #{only_index.join(", ")} failed with the following response:\n #{response}")
       end
     rescue RestClient::Exception => error
-      raise ::Mebla::Errors::MeblaIndexException.new("Indexing #{only_index.join(", ")} failed with the following error: #{error.message}")
+      raise Mebla::Errors::MeblaIndexException.new("Indexing #{only_index.join(", ")} failed with the following error: #{error.message}")
     end
     
     # Rebuilds the index and indexes the data for all models or a list of models given
     # @param *models a list of symbols each representing a model name to rebuild it's index
     # @return [nil]
     def reindex_data(*models)   
-      ::Mebla.log("Rendexing: #{self.slingshot_index_name}")
+      Mebla.log("Rendexing: #{self.slingshot_index_name}")
       
       unless drop_index
-        raise ::Mebla::Errors::MeblaIndexException.new("Could not drop #{@slingshot_index_name}!!!")
+        raise Mebla::Errors::MeblaIndexException.new("Could not drop #{@slingshot_index_name}!!!")
       end        
       
       # Create the index and index the data
-      index_data(models)      
+      if models && !models.empty?
+        index_data(models)
+      else
+        index_data
+      end
     end
         
     # Refreshes the index
     # @return [nil]
     def refresh_index
-      ::Mebla.log("Refreshing: #{self.slingshot_index_name}", :debug)
+      Mebla.log("Refreshing: #{self.slingshot_index_name}", :debug)
       
       result = @slingshot_index.refresh
       
-      ::Mebla.log("Refreshed #{self.slingshot_index_name}: #{result}")
+      Mebla.log("Refreshed #{self.slingshot_index_name}: #{result}")
     end
     
     private          
     # Builds the index according to the mappings set
     # @return [Boolean] true if the index was created successfully, false otherwise
     def build_index 
-      ::Mebla.log("Building index", :debug)
+      Mebla.log("Building #{self.slingshot_index_name}", :debug)
       # Create the index
       result = @slingshot_index.create :mappings => @mappings 
       
-      ::Mebla.log("Created index: #{result.to_s}")
+      Mebla.log("Created #{self.slingshot_index_name}: #{result.to_s}")
       
       # Check if the index exists
       index_exists?

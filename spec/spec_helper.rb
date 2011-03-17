@@ -28,7 +28,7 @@ RSpec.configure do |config|
   end
   
   config.after(:all) do
-    FileUtils.rm_r "#{Dir.pwd}/tmp" rescue nil
+    #FileUtils.rm_r "#{Dir.pwd}/tmp" rescue nil
   end
   
   config.before(:suite) do

@@ -14,8 +14,8 @@ module Mebla
     def initialize(response)
       # Keep the query time
       @time = response['took'] 
-      # Keep the facets
-      @facets = response['facets']      
+      # Keep the facets      
+      @facets = response['facets']
       # Keep the query total to check against the count 
       @total = response['hits']['total']       
       

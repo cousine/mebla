@@ -21,10 +21,10 @@ module Mebla
       @port ||= 9200
       
       make_tmp_dir
-      @logger = Logger.new(
+      @logger = ActiveSupport::BufferedLogger.new(
         open("#{@log_dir}/mebla.log", "a")
       )
-      @logger.level = Logger::DEBUG
+      @logger.level = ActiveSupport::BufferedLogger::Severity::DEBUG
       
       setup_logger        
       
@@ -35,10 +35,7 @@ module Mebla
     # Sets up the default settings of the logger
     # @return [nil]
     def setup_logger
-      @logger.datetime_format = "%Y-%m-%d %H:%M:%S"
-      @logger.formatter = proc { |severity, datetime, progname, msg|
-        "#{datetime}: #{msg}\n"
-      }
+      @logger.auto_flushing = true      
     end
     
     # Returns the proper url for elasticsearch
