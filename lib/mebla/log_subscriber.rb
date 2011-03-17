@@ -1,6 +1,6 @@
 require 'active_support/log_subscriber'
 
-# @private
+# A wrapper for slingshot  elastic-search adapter for Mongoid
 module Mebla
   # Handles logging
   class LogSubscriber < ActiveSupport::LogSubscriber

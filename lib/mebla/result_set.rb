@@ -1,4 +1,4 @@
-# @private
+# A wrapper for slingshot  elastic-search adapter for Mongoid
 module Mebla
   # Represents a set of search results  
   class ResultSet

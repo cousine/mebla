@@ -1,7 +1,7 @@
 require 'active_support'
 require 'mebla/railtie' if defined?(Rails)
 
-# @private
+# A wrapper for slingshot  elastic-search adapter for Mongoid
 module Mebla
   extend ActiveSupport::Autoload
   

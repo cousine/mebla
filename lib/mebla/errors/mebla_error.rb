@@ -1,6 +1,6 @@
-# @private
+# A wrapper for slingshot  elastic-search adapter for Mongoid
 module Mebla
-  # @private
+  # Represents the parent module for all errors in Mebla
   module Errors
     # Default parent Mebla error for all custom non-fatal errors.
     class MeblaError < ::StandardError      

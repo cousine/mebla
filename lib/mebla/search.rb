@@ -1,4 +1,4 @@
-# @private
+# A wrapper for slingshot  elastic-search adapter for Mongoid
 module Mebla
   # Handles all searching functions and chains search to define filters, sorting or facets.
   #
@@ -130,7 +130,7 @@ module Mebla
     # Creates a new facet for the search
     # @param [String] name of the facet
     # @param [String, Symbol] field to create a facet for
-    # @params [Hash] options
+    # @param [Hash] options
     # @return [Mebla::Search]
     #
     # Defining a global facet named "tags"::
@@ -182,7 +182,8 @@ module Mebla
       @results
     end
     
-    # @private
+    # Returns the internal results list
+    # @return [Array]
     def entries
       hits.entries
     end

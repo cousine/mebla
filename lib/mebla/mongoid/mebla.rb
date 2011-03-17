@@ -42,6 +42,7 @@ module Mongoid
       self.whiny_indexing = false
     end
     
+    # Defines class methods for Mongoid::Mebla
     module ClassMethods
       # Defines which fields should be indexed and searched
       # @param [*opts] fields
@@ -239,6 +240,7 @@ module Mongoid
       return false
     end
     
+    # Raises synchronization exception in either #add_to_index or #remove_from_index
     def raise_synchronization_exception(error)
       exception_message = "#{self.class.slingshot_type_name} synchronization failed with the following error: #{error.message}"
       if self.class.whiny_indexing

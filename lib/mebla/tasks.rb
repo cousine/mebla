@@ -36,6 +36,8 @@ namespace :mebla do
   end
 end
 
+# @private
+# Sets up the logger and loads all the models
 def setup
   Rails.application.eager_load!
   Mebla.configure do |config|

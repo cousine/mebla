@@ -1,9 +1,10 @@
 require 'mebla'
 require 'rails'
 
-# @private
+# A wrapper for slingshot  elastic-search adapter for Mongoid
 module Mebla
   # @private
+  # Railtie for Mebla
   class Railtie < Rails::Railtie
     # Configuration
      initializer "mebla.set_configs" do |app|

@@ -1,4 +1,6 @@
+# A wrapper for slingshot  elastic-search adapter for Mongoid
 module Mebla
+  # Represents the parent module for all errors in Mebla
   module Errors
     autoload :MeblaError, 'mebla/errors/mebla_error'
     autoload :MeblaFatal, 'mebla/errors/mebla_fatal'

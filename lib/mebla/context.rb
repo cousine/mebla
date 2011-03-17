@@ -1,4 +1,4 @@
-# @private
+# A wrapper for slingshot  elastic-search adapter for Mongoid
 module Mebla
   # Handles indexing and reindexing
   class Context    
@@ -6,6 +6,7 @@ module Mebla
     attr_reader  :mappings
     
     # @private
+    # Creates a new context object
     def initialize            
       @indexed_models = []
       @mappings = {}

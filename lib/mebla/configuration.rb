@@ -1,7 +1,7 @@
 require 'erb'
 require 'singleton'
 
-# @private
+# A wrapper for slingshot  elastic-search adapter for Mongoid
 module Mebla
   # Parses the configuration file and holds important configuration attributes  
   class Configuration
@@ -11,6 +11,7 @@ module Mebla
     attr_accessor :index, :host, :port, :logger
     
     # @private
+    # Initializes a new configuration object
     def initialize
       @log_dir = "#{Dir.pwd}/tmp/log"
       parse_config      
