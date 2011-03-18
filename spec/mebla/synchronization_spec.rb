@@ -22,15 +22,34 @@ describe "Mebla" do
     
     it "should update the index automatically when a document is updated" do      
       udocument = MongoidAlpha.first
-      udocument.update_attributes(:cost => 3.1)
+      udocument.update_attributes(:cost => 3.1).should == true
       
       result = Mebla.context.slingshot_index.retrieve(:mongoid_alpha, udocument.id.to_s)
       result[:cost].should == 3.1
     end    
   end
   
+  describe "sub classes" do
+    before(:each) do
+      Mebla.context.rebuild_index      
+      MongoidTheta.create! :extra => "Is this indexed?"
+    end
+    
+    it "should index sub-classed documents automatically under the sub-class type" do
+      mdocument = MongoidTheta.first
+      lambda {Mebla.context.slingshot_index.retrieve(:mongoid_theta, mdocument.id.to_s)}.should_not raise_error
+    end
+    
+    it "should index fields under sub-classed documents automatically and correctly" do
+      mdocument = MongoidTheta.first
+      result = Mebla.context.slingshot_index.retrieve(:mongoid_theta, mdocument.id.to_s)
+      result.extra.should == "Is this indexed?"      
+    end
+  end
+  
   describe "embedded documents" do
     before(:each) do
+      Mebla.context.rebuild_index
       beta = MongoidBeta.create! :name => "Embedor parent"
       beta.mongoid_gammas.create :name => "Embedded", :value => 1
     end

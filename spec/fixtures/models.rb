@@ -23,6 +23,12 @@ class MongoidBeta
   search_in :name => {:boost => 2.0, :analyzer => 'snowball'}
 end
 
+class MongoidTheta < MongoidAlpha
+  field :extra  
+  
+  search_in :extra
+end
+
 class MongoidGamma
   include Mongoid::Document
   include Mongoid::Mebla

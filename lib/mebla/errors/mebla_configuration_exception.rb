@@ -4,7 +4,7 @@ module Mebla
   module Errors
     # Thrown when configuration fails
     # @note this is a fatal exception
-    class MeblaIndexException < MeblaFatal
+    class MeblaConfigurationException < MeblaFatal
     end  
   end
 end

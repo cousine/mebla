@@ -9,6 +9,7 @@ describe "Mebla" do
     !(defined?(LogSubscriber).nil?).should == true
     !(defined?(ResultSet).nil?).should == true
     !(defined?(Errors).nil?).should == true
+    !(defined?(Search).nil?).should == true
     !(defined?(Mongoid::Mebla).nil?).should == true
   end
   

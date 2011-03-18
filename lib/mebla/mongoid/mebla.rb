@@ -21,17 +21,16 @@ module Mongoid
           'Boolean' => 'boolean'          
         }
       end
-      
-      cattr_accessor  :embedded_as      
-      cattr_accessor  :embedded_parent
-      cattr_accessor  :embedded_parent_foreign_key      
-      cattr_accessor  :index_mappings
-      cattr_accessor  :index_options
-      cattr_accessor  :search_fields        
-      cattr_accessor  :whiny_indexing   # set to true to raise errors if indexing fails
-      
+            
+      class_inheritable_accessor :embedded_as      
+      class_inheritable_accessor :embedded_parent
+      class_inheritable_accessor :embedded_parent_foreign_key      
+      class_inheritable_accessor :slingshot_mappings      
+      class_inheritable_accessor :search_fields        
+      class_inheritable_accessor :whiny_indexing   # set to true to raise errors if indexing fails
+        
       # make sure critical data remain read only
-      private_class_method :"search_fields=", :"index_options=", :"index_mappings=",
+      private_class_method :"search_fields=", :"slingshot_mappings=",
                                           :"embedded_parent_foreign_key=", :"embedded_parent=", :"embedded_as="
       
       # add callbacks to synchronize modifications with elasticsearch
@@ -72,7 +71,7 @@ module Mongoid
       #   embedded_in :category
       #   search_in :title, :publish_date, :body => { :boost => 2.0, :analyzer => 'snowball' }, :embedded_in => :category
       #  end      
-      def search_in(*opts)
+      def search_in(*opts)        
         # Extract advanced indeces
         options = opts.extract_options!.symbolize_keys
         # Extract simple indeces
@@ -83,7 +82,7 @@ module Mongoid
         # Example::
         #  embedded in a regular class (e.g.: using the default convention for naming the foreign key)
         #    :embedded_in => :parent        
-        if self.embedded?
+        if self.embedded?          
           if (embedor = options.delete(:embedded_in))
             relation = self.relations[embedor.to_s]
             
@@ -101,7 +100,7 @@ module Mongoid
         end
         
         # Keep track of searchable fields (for indexing)
-        self.search_fields = attrs + options.keys
+        self.search_fields = attrs + options.keys        
         
         # Generate simple indeces' mappings
         attrs_mappings = {}
@@ -118,7 +117,7 @@ module Mongoid
         end
         
         # Merge mappings
-        self.index_mappings = {}.merge!(attrs_mappings).merge!(opts_mappings)        
+        self.slingshot_mappings = {}.merge!(attrs_mappings).merge!(opts_mappings)        
         
         # Keep track of indexed models (for bulk indexing)
         ::Mebla.context.add_indexed_model(self, self.slingshot_type_name.to_sym => prepare_mappings)
@@ -138,8 +137,8 @@ module Mongoid
       # Retrieves the type name of the model 
       # (used to populate the _type variable while indexing)
       # @return [String]
-      def slingshot_type_name #:nodoc:
-        "#{self.model_name.underscore}"
+      def slingshot_type_name
+        "#{self.name.underscore}"        
       end
       
       # Enables the modification of records without indexing
@@ -173,9 +172,9 @@ module Mongoid
         else
           mappings = {}
         end
-        
+                
         mappings.merge!({
-          :properties => self.index_mappings
+          :properties => self.slingshot_mappings
         })
       end
     end
@@ -183,7 +182,7 @@ module Mongoid
     private
     # Adds the document to the index
     # @return [Boolean] true if the operation is successful
-    def add_to_index
+    def add_to_index      
       return false unless ::Mebla.context.index_exists? # only try to index if the index exists      
       
       # Prepare attributes to hash
@@ -199,7 +198,7 @@ module Mongoid
       end
       
       # Add indexed fields to the hash
-      self.search_fields.each do |sfield|
+      self.class.search_fields.each do |sfield|
         to_index_hash[sfield] = self.attributes[sfield]
       end      
       
