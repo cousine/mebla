@@ -91,7 +91,7 @@ module Mebla
         only_index = @indexed_models
       else
         only_index = models.collect{|m| m.to_s}
-      end
+      end      
       
       Mebla.log("Indexing #{only_index.join(", ")}", :debug)
       
@@ -111,26 +111,35 @@ module Mebla
           # Get the records    
           entries = []
           unless to_index.embedded?
-            entries = to_index.all.only(to_index.search_fields)            
+            unless to_index.sub_class?
+              entries = to_index.any_in(:_type => [nil, to_index.name]).only(to_index.search_fields)            
+            else
+              entries = to_index.all.only(to_index.search_fields)            
+            end
           else
             parent = to_index.embedded_parent
             access_method = to_index.embedded_as
             
-           parent.all.each do |parent_record|
-              entries += parent_record.send(access_method.to_sym).all.only(to_index.search_fields)
+            parent.all.each do |parent_record|
+              unless to_index.sub_class?
+                entries += parent_record.send(access_method.to_sym).any_in(:_type => [nil, to_index.name]).only(to_index.search_fields)
+              else
+                entries += parent_record.send(access_method.to_sym).all.only(to_index.search_fields)
+              end
             end
           end
           
           # Save the number of entries to be indexed
-          indexed_count[model] = entries.count
+          indexed_count[model] = entries.count          
           
           # Build the queries for this model          
           entries.each do |document|
             attrs = document.attributes.dup # make sure we dont modify the document it self
             attrs["id"] = attrs.delete("_id") # the id is already added in the meta data of the action part of the query
             
+            
             # only index search fields
-            attrs.select!{|field, value| document.class.search_fields.include?(field.to_sym)}
+            attrs.select!{|field, value| document.class.search_fields.include?(field.to_sym)}            
             
             # If embedded get the parent id
             if document.embedded?

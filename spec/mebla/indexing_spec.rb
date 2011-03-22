@@ -17,7 +17,7 @@ describe "Mebla" do
       
       lambda {Mebla.context.slingshot_index.retrieve(:mongoid_alpha, fdocument.id.to_s)}.should_not raise_error
       lambda {Mebla.context.slingshot_index.retrieve(:mongoid_alpha, ldocument.id.to_s)}.should_not raise_error
-    end
+    end    
     
     it "should delete the existing index and create a new one" do
       Mebla.context.rebuild_index.should_not == false
@@ -30,7 +30,36 @@ describe "Mebla" do
       maps["cost"]["type"].should == "float"
     end
     
-    describe "embedded documents" do
+    describe "for sub-classed documents" do
+      it "should index existing records" do
+        Mebla.context.drop_index
+        
+        theta = nil
+        
+        MongoidTheta.without_indexing do
+          theta = MongoidTheta.create! :extra => "Subclassed parent"
+        end
+        
+        Mebla.context.index_data
+        
+        lambda {Mebla.context.slingshot_index.retrieve(:mongoid_theta, theta.id.to_s)}.should_not raise_error
+      end
+      
+      it "should not index non searchable subclassed models" do
+        Mebla.context.drop_index        
+        
+        tao = nil
+        MongoidAlpha.without_indexing do
+          MongoidAlpha.create! :name => "Testing indexing bulkly", :value => 1, :cost => 1.0          
+          tao = MongoidTao.create! :extra2 => "Should not be indexed"
+        end
+        
+        lambda {Mebla.context.index_data}.should_not raise_error
+        lambda {Mebla.context.slingshot_index.retrieve(:mongoid_tao, tao.id.to_s)}.should raise_error
+      end
+    end
+    
+    describe "for embedded documents" do
       it "should index existing records" do
         Mebla.context.drop_index
                 
@@ -42,7 +71,7 @@ describe "Mebla" do
           MongoidGamma.without_indexing do
             gamma = beta.mongoid_gammas.create :name => "Embedded", :value => 1
           end
-        end
+        end        
         
         Mebla.context.index_data
         

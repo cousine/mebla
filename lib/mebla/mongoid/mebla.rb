@@ -95,7 +95,7 @@ module Mongoid
               raise ::Mebla::Errors::MeblaConfigurationException.new("Couldn't infer #{embedor.to_s} inverse relation, please set :inverse_of option on the relation.")
             end
           else
-            raise ::Mebla::Errors::MeblaConfigurationException.new("#{self.model_name} is embedded: embedded_in option should be set to the parent class if the document is embedded.")
+            raise ::Mebla::Errors::MeblaConfigurationException.new("#{self.name} is embedded: embedded_in option should be set to the parent class if the document is embedded.")
           end
         end
         
@@ -155,6 +155,12 @@ module Mongoid
         yield
         set_callback(:save, :after, :add_to_index)
         set_callback(:destroy, :before, :remove_from_index)
+      end
+      
+      # Checks if the class is a subclass
+      # @return [Boolean] true if class is a subclass
+      def sub_class?
+        self.superclass != Object
       end
       
       private

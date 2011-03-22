@@ -29,6 +29,10 @@ class MongoidTheta < MongoidAlpha
   search_in :extra
 end
 
+class MongoidTao < MongoidAlpha
+  field :extra2  
+end
+
 class MongoidGamma
   include Mongoid::Document
   include Mongoid::Mebla
