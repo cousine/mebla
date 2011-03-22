@@ -1,8 +1,12 @@
+TODO for version 1.1.0
+==============
+
+* add ability to index embedded documents fields (as part of the parent document)
+
 TODO for version 1.0.1
 ==============
 
-* add ability to index embedded documents (as part of the parent document)
-* properly handle sub classes
+* <strike>properly handle sub classes</strike>
 
 TODO for version 1.0.0
 ==============
