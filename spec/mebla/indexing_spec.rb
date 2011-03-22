@@ -48,14 +48,26 @@ describe "Mebla" do
       it "should not index non searchable subclassed models" do
         Mebla.context.drop_index        
         
-        tao = nil
+        tau = nil
         MongoidAlpha.without_indexing do
           MongoidAlpha.create! :name => "Testing indexing bulkly", :value => 1, :cost => 1.0          
-          tao = MongoidTao.create! :extra2 => "Should not be indexed"
+          tau = MongoidTau.create! :extra2 => "Should not be indexed"
         end
         
         lambda {Mebla.context.index_data}.should_not raise_error
-        lambda {Mebla.context.slingshot_index.retrieve(:mongoid_tao, tao.id.to_s)}.should raise_error
+        lambda {Mebla.context.slingshot_index.retrieve(:mongoid_tau, tau.id.to_s)}.should raise_error
+      end
+      
+      it "should index only models with defined indecies" do
+        Mebla.context.drop_index
+        
+        theta = nil
+        
+        MongoidOmega.without_indexing do
+          theta = MongoidOmega.create! :name => "Subclassed parent"
+        end        
+        
+        lambda {Mebla.context.index_data}.should_not raise_error
       end
     end
     
