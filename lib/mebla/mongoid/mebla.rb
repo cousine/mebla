@@ -10,8 +10,7 @@ module Mongoid
     included do
       # Used to properly represent data types
       unless defined?(SLINGSHOT_TYPE_MAPPING)
-        SLINGSHOT_TYPE_MAPPING = {
-          'Array' => 'array',
+        SLINGSHOT_TYPE_MAPPING = {          
           'Date' => 'date',
           'DateTime' => 'date',
           'Time' => 'date',
@@ -106,7 +105,9 @@ module Mongoid
         attrs_mappings = {}
         
         attrs.each do |attribute|
-          attrs_mappings[attribute] = {:type => SLINGSHOT_TYPE_MAPPING[self.fields[attribute.to_s].type.to_s] || "string"}
+          unless (field_type = self.fields[attribute.to_s].type.to_s) == "Array" # arrays don't need mappings
+            attrs_mappings[attribute] = {:type => SLINGSHOT_TYPE_MAPPING[field_type] || "string"}
+          end
         end
         
         # Generate advanced indeces' mappings

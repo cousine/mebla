@@ -47,6 +47,15 @@ describe "Mebla" do
     end
   end
   
+  describe "array fields documents" do
+    it "should index array fields and retrieve them correctly" do
+      Mebla.context.rebuild_index
+      zdocument = MongoidZeta.create :name => "Document with array", :an_array => [:index, :index2, :index2]
+      
+      lambda {Mebla.context.slingshot_index.retrieve(:mongoid_zeta, zdocument.id.to_s)}.should_not raise_error
+    end
+  end
+  
   describe "embedded documents" do
     before(:each) do
       Mebla.context.rebuild_index

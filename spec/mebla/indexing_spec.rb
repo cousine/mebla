@@ -30,6 +30,22 @@ describe "Mebla" do
       maps["cost"]["type"].should == "float"
     end
     
+    describe "array fields" do
+      it "should index arrays" do
+        Mebla.context.drop_index
+        
+        zeta = nil
+        
+        MongoidZeta.without_indexing do
+          zeta = MongoidZeta.create! :name => "Document with an array", :an_array => [:item, :item2]
+        end
+        
+        Mebla.context.index_data
+        
+        lambda {Mebla.context.slingshot_index.retrieve(:mongoid_zeta, zeta.id.to_s)}.should_not raise_error
+      end
+    end
+    
     describe "for sub-classed documents" do
       it "should index existing records" do
         Mebla.context.drop_index

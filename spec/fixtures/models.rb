@@ -43,6 +43,15 @@ class MongoidOmega < MongoidDelta
   search_in :name
 end
 
+class MongoidZeta
+  include Mongoid::Document
+  include Mongoid::Mebla
+  field :name
+  field :an_array, :type => Array
+  
+  search_in :name, :an_array
+end
+
 class MongoidGamma
   include Mongoid::Document
   include Mongoid::Mebla

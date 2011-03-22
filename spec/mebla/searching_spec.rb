@@ -19,6 +19,25 @@ describe "Mebla" do
       results.first.class.should == MongoidAlpha
     end
     
+    describe "documents with arrays" do
+      before(:each) do
+        Mebla.context.rebuild_index
+        MongoidZeta.create! :name => "Document with array", :an_array => [:item, :item2]
+      end
+      
+      it "should return arrays correctly" do
+        results = MongoidZeta.search "Document with array"
+        
+        results.first.an_array.class.should == Array
+      end
+      
+      it "should search within arrays" do
+        results = MongoidZeta.search "item2"
+        
+        results.count.should == 1
+      end
+    end
+    
     describe "multiple types" do
       before(:each) do
         MongoidBeta.create! :name => "Testing index"
