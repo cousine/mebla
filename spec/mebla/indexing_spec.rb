@@ -46,6 +46,22 @@ describe "Mebla" do
       end
     end
     
+    describe "method fields" do
+      it "should index method results" do
+        Mebla.context.drop_index
+        
+        pi = nil
+        
+        MongoidPi.without_indexing do
+          pi = MongoidPi.create! :name => "Document with an indexed method"
+        end
+        
+        Mebla.context.index_data
+        
+        lambda {Mebla.context.slingshot_index.retrieve(:mongoid_pi, pi.id.to_s)}.should_not raise_error
+      end
+    end
+    
     describe "for sub-classed documents" do
       it "should index existing records" do
         Mebla.context.drop_index

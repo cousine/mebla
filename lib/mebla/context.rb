@@ -134,12 +134,19 @@ module Mebla
           
           # Build the queries for this model          
           entries.each do |document|
-            attrs = document.attributes.dup # make sure we dont modify the document it self
-            attrs["id"] = attrs.delete("_id") # the id is already added in the meta data of the action part of the query
-            
+            attrs = {} #document.attributes.dup # make sure we dont modify the document it self
+            attrs[:id] = document.attributes["_id"] # the id is already added in the meta data of the action part of the query
             
             # only index search fields            
-            attrs.select!{|field, value| document.class.search_fields.include?(field.to_sym)}
+            #attrs.select!{|field, value| document.class.search_fields.include?(field.to_sym)}
+            
+            document.class.search_fields.each do |field|
+              if document.attributes.keys.include?(field.to_s)
+                attrs[field] = document.attributes[field.to_s]
+              else
+                attrs[field] = document.send(field)
+              end
+            end
             
             # If embedded get the parent id
             if document.embedded?

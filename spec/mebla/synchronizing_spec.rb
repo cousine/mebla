@@ -1,7 +1,7 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe "Mebla" do  
-  describe "synchronization" do
+  describe "synchronizing" do
     before(:each) do
       Mebla.context.rebuild_index
       MongoidAlpha.create! :name => "Testing index", :value => 1, :cost => 2.0
@@ -40,14 +40,40 @@ describe "Mebla" do
       lambda {Mebla.context.slingshot_index.retrieve(:mongoid_theta, mdocument.id.to_s)}.should_not raise_error
     end
     
-    it "should index fields under sub-classed documents automatically and correctly" do
-      mdocument = MongoidTheta.first
-      result = Mebla.context.slingshot_index.retrieve(:mongoid_theta, mdocument.id.to_s)
-      result.extra.should == "Is this indexed?"      
+     it "should index sub-classed documents automatically and correctly" do
+      pdocument = MongoidTheta.first
+      result = Mebla.context.slingshot_index.retrieve(:mongoid_theta, pdocument.id.to_s)
+      result[:extra].should == "Is this indexed?"      
+    end
+  end
+  
+  describe "documents with indexed method fields" do
+    before(:each) do
+      Mebla.context.rebuild_index
+      MongoidPi.create! :name => "Testing indexing methods"
+    end
+    
+    it "should index method" do
+      pdocument = MongoidPi.first
+      
+      lambda {Mebla.context.slingshot_index.retrieve(:mongoid_pi, pdocument.id.to_s)}.should_not raise_error
+    end
+    
+     it "should index method fields documents automatically and correctly" do
+      pdocument = MongoidPi.first
+      result = Mebla.context.slingshot_index.retrieve(:mongoid_pi, pdocument.id.to_s)
+      result[:does_smth].should == "returns smth"
     end
   end
   
   describe "array fields documents" do
+    it "should index array fields and retrieve them correctly" do
+      Mebla.context.rebuild_index
+      zdocument = MongoidZeta.create :name => "Document with array", :an_array => [:index, :index2, :index2]
+      
+      lambda {Mebla.context.slingshot_index.retrieve(:mongoid_zeta, zdocument.id.to_s)}.should_not raise_error
+    end
+    
     it "should index array fields and retrieve them correctly" do
       Mebla.context.rebuild_index
       zdocument = MongoidZeta.create :name => "Document with array", :an_array => [:index, :index2, :index2]

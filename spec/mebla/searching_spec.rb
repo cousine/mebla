@@ -38,6 +38,19 @@ describe "Mebla" do
       end
     end
     
+    describe "documents with indexed methods" do
+      before(:each) do
+        Mebla.context.rebuild_index
+        MongoidPi.create! :name => "Document with an indexed method"
+      end
+      
+      it "should search within indexed methods" do
+        results = MongoidPi.search "returns smth"
+        
+        results.count.should == 1
+      end
+    end
+    
     describe "multiple types" do
       before(:each) do
         MongoidBeta.create! :name => "Testing index"

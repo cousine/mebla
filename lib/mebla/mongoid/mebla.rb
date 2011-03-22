@@ -88,7 +88,7 @@ module Mongoid
             # Infer the attributes of the relation
             self.embedded_parent = relation.class_name.constantize
             self.embedded_parent_foreign_key = relation.key.to_s
-            self.embedded_as = relation[:inverse_of] || relation.inverse_setter.to_s.gsub(/=$/, '')            
+            self.embedded_as = relation[:inverse_of] || relation.inverse_setter.to_s.gsub(/=$/, '')
             
             if self.embedded_as.blank?
               raise ::Mebla::Errors::MeblaConfigurationException.new("Couldn't infer #{embedor.to_s} inverse relation, please set :inverse_of option on the relation.")
@@ -105,16 +105,34 @@ module Mongoid
         attrs_mappings = {}
         
         attrs.each do |attribute|
-          unless (field_type = self.fields[attribute.to_s].type.to_s) == "Array" # arrays don't need mappings
-            attrs_mappings[attribute] = {:type => SLINGSHOT_TYPE_MAPPING[field_type] || "string"}
+          unless (attr_field = self.fields[attribute.to_s]).nil?
+            unless (field_type = attr_field.type.to_s) == "Array" # arrays don't need mappings
+              attrs_mappings[attribute] = {:type => SLINGSHOT_TYPE_MAPPING[field_type] || "string"}
+            end
+          else
+            if self.method_defined?(attribute)
+              attrs_mapping[attribute] = {:type => "string"}
+            else
+              ::Mebla::Errors::MeblaConfigurationException.new("Invalid field #{attribute.to_s} defined for indexing #{self.name}.")
+            end
           end
         end
         
         # Generate advanced indeces' mappings
         opts_mappings = {}
         
-        options.each do |opt, properties|          
-          opts_mappings[opt] = {:type => SLINGSHOT_TYPE_MAPPING[self.fields[opt.to_s].type.to_s] || "string" }.merge!(properties)
+        options.each do |opt, properties|
+          unless (attr_field = self.fields[opt.to_s]).nil?
+            unless (field_type = attr_field.type.to_s) == "Array"
+              opts_mappings[opt] = {:type => SLINGSHOT_TYPE_MAPPING[field_type] || "string" }.merge!(properties)
+            end
+          else
+            if self.method_defined?(opt)
+              opts_mappings[opt] = {:type => "string"}.merge!(properties)
+            else
+              ::Mebla::Errors::MeblaConfigurationException.new("Invalid field #{opt.to_s} defined for indexing #{self.name}.")
+            end
+          end
         end
         
         # Merge mappings
@@ -206,7 +224,11 @@ module Mongoid
       
       # Add indexed fields to the hash
       self.class.search_fields.each do |sfield|
-        to_index_hash[sfield] = self.attributes[sfield]
+        if self.class.fields[sfield.to_s]
+          to_index_hash[sfield] = self.attributes[sfield]
+        else
+          to_index_hash[sfield] = self.send(sfield)
+        end
       end      
       
       ::Mebla.log("Indexing #{self.class.slingshot_type_name}: #{to_index_hash.to_s}", :debug)

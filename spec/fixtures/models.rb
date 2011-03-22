@@ -64,3 +64,17 @@ class MongoidGamma
   
   search_in :name, :value, :embedded_in => :mongoid_beta
 end
+
+class MongoidPi
+  include Mongoid::Document
+  include Mongoid::Mebla
+  field :name
+  
+  self.whiny_indexing = true
+  
+  search_in :name, :does_smth
+  
+  def does_smth
+    "returns smth"
+  end
+end

@@ -1,7 +1,9 @@
 TODO for version 1.1.0
 ==============
 
+* add instructions for indexing methors to README.md
 * add ability to index embedded documents fields (as part of the parent document)
+* <strike>add ability to index methods results</strike>
 
 TODO for version 1.0.1
 ==============
