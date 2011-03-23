@@ -1,9 +1,5 @@
 # @private
 module Mongoid
-  # --
-  # TODO: add ability to index embedded documents (as part of the parent document)
-  # ++
-  
   # A wrapper for slingshot  elastic-search adapter for Mongoid
   module Mebla
     extend ActiveSupport::Concern
@@ -26,6 +22,7 @@ module Mongoid
       class_inheritable_accessor :embedded_parent_foreign_key      
       class_inheritable_accessor :slingshot_mappings      
       class_inheritable_accessor :search_fields        
+      class_inheritable_accessor :search_relations        
       class_inheritable_accessor :whiny_indexing   # set to true to raise errors if indexing fails
         
       # make sure critical data remain read only
@@ -58,6 +55,40 @@ module Mongoid
       #   search_in :title, :publish_date, :body => { :boost => 2.0, :analyzer => 'snowball' }
       #  end
       #      
+      # Defines a search index on a normal document with an index on a field inside a relation::
+      #
+      #  class Document
+      #   include Mongoid::Document
+      #   include Mongoid::Mebla
+      #   field :title
+      #   field :body
+      #   field :publish_date, :type => Date
+      #
+      #   referenced_in :blog  
+      #   #...
+      #   # relations mappings are detected automatically
+      #   search_in :title, :publish_date, :body => { :boost => 2.0, :analyzer => 'snowball' }, :search_relations => {
+      #     :blog => [:author, :name]
+      #   }
+      #  end
+      #
+      # Defines a search index on a normal document with an index on method "permalink"::
+      #
+      #  class Document
+      #   include Mongoid::Document
+      #   include Mongoid::Mebla
+      #   field :title
+      #   field :body
+      #   field :publish_date, :type => Date
+      #
+      #   def permalink
+      #     self.title.gsub(/\s/, "-").downcase
+      #   end      
+      #   #...
+      #   # methods can also define custom mappings if needed
+      #   search_in :title, :publish_date, :permalink, :body => { :boost => 2.0, :analyzer => 'snowball' }
+      #  end      
+      #
       # Defines a search index on an embedded document with a single parent and custom mappings on "body"::
       #
       #  class Document
@@ -98,6 +129,14 @@ module Mongoid
           end
         end
         
+        self.search_relations = {}
+        # Keep track of relational indecies
+        unless (relations_inedcies = options.delete(:search_relations)).nil?
+          relations_inedcies.each do |relation, index|
+            self.search_relations[relation] = index
+          end
+        end
+        
         # Keep track of searchable fields (for indexing)
         self.search_fields = attrs + options.keys        
         
@@ -127,8 +166,8 @@ module Mongoid
               opts_mappings[opt] = {:type => SLINGSHOT_TYPE_MAPPING[field_type] || "string" }.merge!(properties)
             end
           else
-            if self.method_defined?(opt)
-              opts_mappings[opt] = {:type => "string"}.merge!(properties)
+            if self.method_defined?(opt)              
+              opts_mappings[opt] = {:type => "string"}.merge!(properties)                
             else
               ::Mebla::Errors::MeblaConfigurationException.new("Invalid field #{opt.to_s} defined for indexing #{self.name}.")
             end
@@ -228,6 +267,32 @@ module Mongoid
           to_index_hash[sfield] = self.attributes[sfield]
         else
           to_index_hash[sfield] = self.send(sfield)
+        end
+      end
+      
+      # Add indexed relations to the hash      
+      self.class.search_relations.each do |relation, fields|        
+        entries = self.send(relation.to_sym)
+        
+        next if entries.nil?
+        
+        if entries.is_a?(Array)
+          next if entries.empty?
+          to_index_hash[relation] = []
+          entries.each do |entry|
+            if fields.is_a?(Array)
+              to_index_hash[relation] << entry.attributes.reject{|key, value| !fields.include?(key.to_sym)}
+            else
+              to_index_hash[relation] << { fields => entry.attributes[fields.to_s] }
+            end
+          end
+        else          
+          to_index_hash[relation] = {}
+          if fields.is_a?(Array)
+            to_index_hash[relation].merge!(entries.attributes.reject{|key, value| !fields.include?(key.to_sym)})
+          else
+            to_index_hash[relation].merge!({ fields => entries.attributes[fields.to_s] })
+          end
         end
       end      
       

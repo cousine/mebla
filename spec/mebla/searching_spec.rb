@@ -51,6 +51,21 @@ describe "Mebla" do
       end
     end
     
+    describe "documents with indexed relation fields" do
+      before(:each) do
+        Mebla.context.rebuild_index
+        pi = MongoidPi.create! :name => "A pi"
+        alpha = MongoidAlpha.create! :name => "Testing index", :value => 1, :cost => 2.0
+        epsilon = pi.create_mongoid_epsilon :name => "episilon", :mongoid_alphas => [alpha]      
+      end
+      
+      it "should search within indexed fields from the relations" do
+        results = MongoidEpsilon.search "Testing index"
+        
+        results.count.should == 1        
+      end
+    end
+    
     describe "multiple types" do
       before(:each) do
         MongoidBeta.create! :name => "Testing index"

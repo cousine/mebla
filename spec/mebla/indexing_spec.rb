@@ -62,6 +62,34 @@ describe "Mebla" do
       end
     end
     
+    describe "relational fields" do
+      it "should index relational fields" do
+        Mebla.context.drop_index
+        
+        pi = nil
+
+        MongoidPi.without_indexing do
+          pi = MongoidPi.create! :name => "A pi"
+        end
+        
+        alpha = nil
+        
+        MongoidAlpha.without_indexing do
+          alpha = MongoidAlpha.create! :name => "Testing index", :value => 1, :cost => 2.0
+        end        
+        
+        epsilon = nil
+        
+        MongoidEpsilon.without_indexing do
+          epsilon = pi.create_mongoid_epsilon :name => "episilon", :mongoid_alphas => [alpha]
+        end
+        
+        Mebla.context.index_data
+        
+        lambda {Mebla.context.slingshot_index.retrieve(:mongoid_epsilon, epsilon.id.to_s)}.should_not raise_error
+      end
+    end
+    
     describe "for sub-classed documents" do
       it "should index existing records" do
         Mebla.context.drop_index

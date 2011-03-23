@@ -66,6 +66,31 @@ describe "Mebla" do
     end
   end
   
+  describe "documents with indexed relation fields" do
+    before(:each) do
+      Mebla.context.rebuild_index
+      pi = MongoidPi.create! :name => "A pi"
+      alpha = MongoidAlpha.create! :name => "Testing index", :value => 1, :cost => 2.0
+      epsilon = pi.create_mongoid_epsilon :name => "episilon", :mongoid_alphas => [alpha]      
+    end
+    
+    it "should index documents with indexed fields from the relations" do
+      edocument = MongoidEpsilon.first
+      
+      lambda {Mebla.context.slingshot_index.retrieve(:mongoid_epsilon, edocument.id.to_s)}.should_not raise_error
+    end
+    
+    it "should index fields from the relations with the document" do
+      edocument = MongoidEpsilon.first
+      
+      result = Mebla.context.slingshot_index.retrieve(:mongoid_epsilon, edocument.id.to_s)
+      result[:mongoid_pi][:name].should == "A pi"      
+      result[:mongoid_alphas].is_a?(Array).should == true      
+      result[:mongoid_alphas].first["name"].should == "Testing index"
+      result[:mongoid_alphas].first["value"].should == 1
+    end
+  end
+  
   describe "array fields documents" do
     it "should index array fields and retrieve them correctly" do
       Mebla.context.rebuild_index

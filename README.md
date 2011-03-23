@@ -82,6 +82,49 @@ You can also index embedded documents as follows:
     
 This will index all comments and make it available for searching directly through the Comment model.
 
+#### Indexing methods
+
+You can also index method results:
+
+    class Post
+      include Mongoid::Document
+      include Mongoid::Mebla
+      field :title
+      field :author
+      field :body
+      field :publish_date, :type => Date
+      field :tags, :type => Array
+      
+      embeds_many :comments
+      search_in :author, :body, :publish_date, :tags, :permalink, :title => { :boost => 2.0, :analyzer => 'snowball' }
+      
+      def permalink
+        self.title.gsub(/\s/, "-").downcase
+      end
+    end
+    
+This will index the result of the method permalink.
+
+#### Indexing fields of relations
+
+You can also index fields of relations:
+
+    class Post
+      include Mongoid::Document
+      include Mongoid::Mebla
+      field :title
+      field :author
+      field :body
+      field :publish_date, :type => Date
+      field :tags, :type => Array
+      
+      embeds_many :comments
+      search_in :author, :body, :publish_date, :tags, :title => { :boost => 2.0, :analyzer => 'snowball' },
+        :search_relations => {:comments => :author}
+    end
+    
+This will index authors of all comments embedded with this Post.
+
 ### Searching the index
 
 Mebla supports two types of search, index search and model search; in index search Mebla searches

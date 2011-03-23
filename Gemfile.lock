@@ -58,7 +58,7 @@ GEM
       yajl-ruby (> 0.7.9)
     tzinfo (0.3.24)
     will_paginate (3.0.pre2)
-    yajl-ruby (0.8.1)
+    yajl-ruby (0.8.2)
     yard (0.6.4)
 
 PLATFORMS

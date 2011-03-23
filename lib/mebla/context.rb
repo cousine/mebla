@@ -112,9 +112,9 @@ module Mebla
           entries = []
           unless to_index.embedded?
             if to_index.sub_class?
-              entries = to_index.any_in(:_type => [to_index.name]).only(to_index.search_fields)            
+              entries = to_index.any_in(:_type => [to_index.name])
             else              
-              entries = to_index.any_in(:_type => [nil, to_index.name]).only(to_index.search_fields)            
+              entries = to_index.any_in(:_type => [nil, to_index.name])
             end
           else
             parent = to_index.embedded_parent
@@ -122,9 +122,9 @@ module Mebla
             
             parent.all.each do |parent_record|
               if to_index.sub_class?
-                entries += parent_record.send(access_method.to_sym).any_in(:_type => [to_index.name]).only(to_index.search_fields)
+                entries += parent_record.send(access_method.to_sym).any_in(:_type => [to_index.name])
               else
-                entries += parent_record.send(access_method.to_sym).any_in(:_type => [nil, to_index.name]).only(to_index.search_fields)
+                entries += parent_record.send(access_method.to_sym).any_in(:_type => [nil, to_index.name])
               end
             end
           end
@@ -137,9 +137,7 @@ module Mebla
             attrs = {} #document.attributes.dup # make sure we dont modify the document it self
             attrs[:id] = document.attributes["_id"] # the id is already added in the meta data of the action part of the query
             
-            # only index search fields            
-            #attrs.select!{|field, value| document.class.search_fields.include?(field.to_sym)}
-            
+            # only index search fields  and methods
             document.class.search_fields.each do |field|
               if document.attributes.keys.include?(field.to_s)
                 attrs[field] = document.attributes[field.to_s]
@@ -147,6 +145,32 @@ module Mebla
                 attrs[field] = document.send(field)
               end
             end
+            
+            # index relational fields
+            document.class.search_relations.each do |relation, fields|              
+              items = document.send(relation.to_sym)
+              
+              next if items.nil?
+              
+              if items.is_a?(Array)
+                next if items.empty?
+                attrs[relation] = []
+                items.each do |item|
+                  if fields.is_a?(Array)
+                    attrs[relation] << item.attributes.reject{|key, value| !fields.include?(key.to_sym)}
+                  else
+                    attrs[relation] << { fields => item.attributes[fields.to_s] }
+                  end
+                end
+              else
+                attrs[relation] = {}
+                if fields.is_a?(Array)
+                  attrs[relation].merge!(items.attributes.reject{|key, value| !fields.include?(key.to_sym)})
+                else
+                  attrs[relation].merge!({ fields => items.attributes[fields.to_s] })
+                end
+              end
+            end  
             
             # If embedded get the parent id
             if document.embedded?
