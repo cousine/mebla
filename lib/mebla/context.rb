@@ -176,6 +176,7 @@ module Mebla
             if document.embedded?
               parent_id = document.send(document.class.embedded_parent_foreign_key.to_sym).id.to_s        
               attrs[(document.class.embedded_parent_foreign_key + "_id").to_sym] = parent_id
+              attrs[:_parent] = parent_id
               
               # Build add to the bulk query
               bulk_query << build_bulk_query(@slingshot_index_name, to_index.slingshot_type_name, document.id.to_s, attrs, parent_id)

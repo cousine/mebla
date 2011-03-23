@@ -61,10 +61,12 @@ module Mebla
           parent_class = model_class.embedded_parent
           access_method = model_class.embedded_as
           
-          parent = parent_class.find ids.keys.first          
-          
-          # Retrieve the results from the database
-          @entries += parent.send(access_method.to_sym).any_in(:_id => ids.values.first).entries
+          ids.each do |parent_id, entries_ids|
+            parent = parent_class.find parent_id
+            
+            # Retrieve the results from the database
+            @entries += parent.send(access_method.to_sym).any_in(:_id => entries_ids).entries
+          end
         end
       end
             
