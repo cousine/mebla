@@ -168,6 +168,22 @@ module Mebla
       self
     end
     
+    # Sets the maximum number of hits per query, defaults to 10
+    # @param [Integer] value
+    # @return [Mebla::Search]
+    def size(value)
+      @slingshot_search = @slingshot_search.size(value)
+      self
+    end
+    
+    # Sets the starting offset for the query
+    # @param [Integer] value
+    # @return [Mebla::Search]
+    def from(value)
+      @slingshot_search = @slingshot_search.from(value)
+      self
+    end
+    
     # Performs the search and returns the results
     # @return [Mebla::ResultSet]
     def hits
