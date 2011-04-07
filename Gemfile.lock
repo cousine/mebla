@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mebla (1.1.1)
+    mebla (1.1.2)
       bson (= 1.2.0)
       bson_ext (= 1.2.0)
       mebla
@@ -11,11 +11,11 @@ PATH
 GEM
   remote: http://rubygems.org/
   specs:
-    activemodel (3.0.5)
-      activesupport (= 3.0.5)
+    activemodel (3.0.6)
+      activesupport (= 3.0.6)
       builder (~> 2.1.2)
-      i18n (~> 0.4)
-    activesupport (3.0.5)
+      i18n (~> 0.5.0)
+    activesupport (3.0.6)
     bluecloth (2.1.0)
     bson (1.2.0)
     bson_ext (1.2.0)
@@ -52,14 +52,14 @@ GEM
     rspec-expectations (2.3.0)
       diff-lcs (~> 1.1.2)
     rspec-mocks (2.3.0)
-    slingshot-rb (0.0.6)
+    slingshot-rb (0.0.7)
       bundler (~> 1.0.0)
       rest-client (~> 1.6.0)
       yajl-ruby (> 0.7.9)
-    tzinfo (0.3.24)
+    tzinfo (0.3.26)
     will_paginate (3.0.pre2)
     yajl-ruby (0.8.2)
-    yard (0.6.4)
+    yard (0.6.7)
 
 PLATFORMS
   ruby
