@@ -2,6 +2,7 @@ PATH
   remote: .
   specs:
     mebla (1.1.3)
+      mebla
       mongoid (~> 2.0.1)
       slingshot-rb (~> 0.0.6)
 

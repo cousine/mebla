@@ -190,7 +190,7 @@ module Mebla
       return @results if @results
       # Log search query
       Mebla.log("Searching:\n#{@slingshot_search.to_json.to_s}", :debug)
-      response = @slingshot_search.perform.response
+      response = @slingshot_search.perform.json
       Mebla.log("Response:\n#{response}", :info)
       @results = Mebla::ResultSet.new(response)
       # Log results statistics
