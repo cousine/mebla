@@ -45,14 +45,14 @@ module Mebla
           end
           # collect ids
           # {class => [ids]}
-          model_ids[model_class].push hit['_source']['id']
+          model_ids[model_class] << hit['_source']['id']
         end
       end
       
       # Cast the results into their appropriate classes
       @entries = []
-      
-      model_ids.each do |model_class, ids|          
+
+      model_ids.each_pair do |model_class, ids|          
         unless model_class.embedded?
           # Retrieve the results from the database
           @entries += model_class.any_in(:_id => ids).entries
@@ -61,7 +61,7 @@ module Mebla
           parent_class = model_class.embedded_parent
           access_method = model_class.embedded_as
           
-          ids.each do |parent_id, entries_ids|
+          ids.each_pair do |parent_id, entries_ids|
             parent = parent_class.find parent_id
             
             # Retrieve the results from the database

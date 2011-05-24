@@ -140,34 +140,60 @@ module Mebla
             # only index search fields  and methods
             document.class.search_fields.each do |field|
               if document.attributes.keys.include?(field.to_s)
-                attrs[field] = document.attributes[field.to_s]
+                attrs[field] = document.attributes[field.to_s] # attribute
               else
-                attrs[field] = document.send(field)
+                attrs[field] = document.send(field) # method
               end
             end
             
             # index relational fields
             document.class.search_relations.each do |relation, fields|              
-              items = document.send(relation.to_sym)
+              items = document.send(relation.to_sym) # get the relation document
               
               next if items.nil?
               
+              # N relation side
               if items.is_a?(Array)
                 next if items.empty?
                 attrs[relation] = []
                 items.each do |item|
-                  if fields.is_a?(Array)
-                    attrs[relation] << item.attributes.reject{|key, value| !fields.include?(key.to_sym)}
-                  else
-                    attrs[relation] << { fields => item.attributes[fields.to_s] }
+                  if fields.is_a?(Array) # given multiple fields to index
+                    fields_values = {}
+                    fields.each do |field|
+                      if item.attributes.keys.include?(field.to_s)
+                        fields_values.merge!({ field => item.attributes[fields.to_s] }) # attribute
+                      else
+                        fields_values.merge!({ field => item.send(field) }) # method
+                      end
+                    end
+                    attrs[relation] << fields_values
+                  else # only index one field in the relation
+                    if item.attributes.keys.include?(fields.to_s)
+                      attrs[relation] << { fields => item.attributes[fields.to_s] } # attribute
+                    else
+                      attrs[relation] << { fields => item.send(fields) } # method
+                    end
                   end
                 end
+              # 1 relation side
               else
                 attrs[relation] = {}
-                if fields.is_a?(Array)
-                  attrs[relation].merge!(items.attributes.reject{|key, value| !fields.include?(key.to_sym)})
-                else
-                  attrs[relation].merge!({ fields => items.attributes[fields.to_s] })
+                if fields.is_a?(Array) # given multiple fields to index
+                  fields_values = {}
+                  fields.each do |field|
+                    if items.attributes.keys.include?(field.to_s)
+                      fields_values.merge!({ field => items.attributes[fields.to_s] }) # attribute
+                    else
+                      fields_values.merge!({ field => items.send(field) }) # method
+                    end
+                  end
+                  attrs[relation].merge!(fields_values)
+                else # only index one field in the relation
+                  if items.attributes.keys.include?(fields.to_s)
+                    attrs[relation].merge!({ fields => items.attributes[fields.to_s] }) # attribute
+                  else
+                    attrs[relation].merge!({ fields => items.send(fields) }) # method
+                  end
                 end
               end
             end  

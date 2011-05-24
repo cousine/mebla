@@ -10,7 +10,7 @@ describe "Mebla" do
     it "should search and return the only relevant result" do
       results=MongoidAlpha.search "name: Testing index"      
       
-      results.count.should == 1          
+      results.total.should == 1          
     end
     
     it "should search and return the only relevant result, and cast it into the correct class type" do
@@ -34,7 +34,7 @@ describe "Mebla" do
       it "should search within arrays" do
         results = MongoidZeta.search "item2"
         
-        results.count.should == 1
+        results.total.should == 1
       end
     end
     
@@ -47,7 +47,7 @@ describe "Mebla" do
       it "should search within indexed methods" do
         results = MongoidPi.search "returns smth"
         
-        results.count.should == 1
+        results.total.should == 1
       end
     end
     
@@ -62,7 +62,7 @@ describe "Mebla" do
       it "should search within indexed fields from the relations" do
         results = MongoidEpsilon.search "Testing index"
         
-        results.count.should == 1        
+        results.total.should == 1        
       end
     end
     
@@ -74,14 +74,14 @@ describe "Mebla" do
       it "should search and return all results of all class types" do        
         results=Mebla.search  "name: Testing index"        
         
-        results.count.should == 2
+        results.total.should == 2
         (results.each.collect{|e| e.class} & [MongoidAlpha, MongoidBeta]).should =~ [MongoidAlpha, MongoidBeta]
       end
       
       it "should search and return only results from the searched class type" do        
         results=MongoidAlpha.search "name: Testing index"        
         
-        results.count.should == 1
+        results.total.should == 1
         results.first.class.should == MongoidAlpha
       end
     end
@@ -95,7 +95,7 @@ describe "Mebla" do
       it "should search and return the only relevant result" do
         results=MongoidGamma.search "name: Embedded"        
         
-        results.count.should == 1
+        results.total.should == 1
       end
       
       it "should search and return the only relevant result, and cast it into the correct class type" do
@@ -120,15 +120,15 @@ describe "Mebla" do
       end
       
       it "should search and only return results matching the term defined" do
-        Mebla.search.term(:name, "index").count.should == 2
+        Mebla.search.term(:name, "index").total.should == 2
       end
       
       it "should search and only return results matching the terms defined" do
-        Mebla.search.terms(:name, ["index", "map"]).count.should == 3
+        Mebla.search.terms(:name, ["index", "map"]).total.should == 3
       end
       
       it "should search and filter results according to the filters defined" do
-        Mebla.search.terms(:name, ["index", "map"]).only(:value => [1]).count.should == 1
+        Mebla.search.terms(:name, ["index", "map"]).only(:value => [1]).total.should == 1
       end
       
       it "should search and return results along with facets" do
