@@ -20,39 +20,36 @@ module Mebla
       @total = response['hits']['total']       
       
       # Be efficient only query the database once
-      model_ids = {}
+      model_ids = []
       
       # Collect results' ids
       response['hits']['hits'].each do |hit|
         model_class = hit['_type'].camelize.constantize        
-        
+        model_ids << [model_class]
+
         if model_class.embedded?
-          unless model_ids[model_class]
-            model_ids[model_class] = {}
-          end
+          model_class_collection = model_ids.assoc(model_class)
           # collect parent ids
           # {class => {parent_id => [ids]}}
           parent_id = hit['_source']['_parent']
           
-          unless model_ids[model_class][parent_id]
-            model_ids[model_class][parent_id] = []
-          end
+          model_class_collection << [parent_id]
           
-          model_ids[model_class][parent_id].push hit['_source']['id']
+          model_class_collection.assoc(parent_id) << hit['_source']['id']
         else
-          unless model_ids[model_class]
-            model_ids[model_class] = []
-          end
           # collect ids
           # {class => [ids]}
-          model_ids[model_class] << hit['_source']['id']
+          model_ids.assoc(model_class) << hit['_source']['id']
         end
       end
       
       # Cast the results into their appropriate classes
       @entries = []
 
-      model_ids.each_pair do |model_class, ids|          
+      model_ids.each do |model_class_collection|          
+        model_class = model_class_collection.first
+        ids = model_class_collection.drop(1)
+
         unless model_class.embedded?
           # Retrieve the results from the database
           @entries += model_class.any_in(:_id => ids).entries
@@ -61,7 +58,10 @@ module Mebla
           parent_class = model_class.embedded_parent
           access_method = model_class.embedded_as
           
-          ids.each_pair do |parent_id, entries_ids|
+          ids.each do |parent_id_collection|
+            parent_id = parent_id_collection.first
+            entries_ids = parent_id_collection.drop(1)
+            
             parent = parent_class.find parent_id
             
             # Retrieve the results from the database
