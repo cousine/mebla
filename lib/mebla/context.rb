@@ -161,7 +161,7 @@ module Mebla
                     fields_values = {}
                     fields.each do |field|
                       if item.attributes.keys.include?(field.to_s)
-                        fields_values.merge!({ field => item.attributes[fields.to_s] }) # attribute
+                        fields_values.merge!({ field => item.attributes[field.to_s] }) # attribute
                       else
                         fields_values.merge!({ field => item.send(field) }) # method
                       end
