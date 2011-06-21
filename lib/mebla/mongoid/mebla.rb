@@ -150,7 +150,7 @@ module Mongoid
             end
           else
             if self.instance_methods.include?(attribute.to_s)
-              attrs_mapping[attribute] = {:type => "string"}
+              attrs_mappings[attribute] = {:type => "string"}
             else
               ::Mebla::Errors::MeblaConfigurationException.new("Invalid field #{attribute.to_s} defined for indexing #{self.name}.")
             end
