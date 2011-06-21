@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    mebla (1.1.7)
+    mebla (1.1.8)
       mebla
       mongoid (~> 2.0.1)
       slingshot-rb (= 0.0.8)
@@ -40,7 +40,7 @@ GEM
       rspec (~> 2)
     rake (0.8.7)
     rcov (0.9.9)
-    rest-client (1.6.1)
+    rest-client (1.6.3)
       mime-types (>= 1.16)
     rspec (2.3.0)
       rspec-core (~> 2.3.0)
