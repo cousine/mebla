@@ -264,7 +264,7 @@ module Mongoid
       # Add indexed fields to the hash
       self.class.search_fields.each do |sfield|
         if self.class.fields[sfield.to_s]
-          to_index_hash[sfield] = self.attributes[sfield]
+          to_index_hash[sfield] = self.attributes[sfield.to_s]
         else
           to_index_hash[sfield] = self.send(sfield)
         end
