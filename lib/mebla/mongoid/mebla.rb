@@ -166,7 +166,7 @@ module Mongoid
               opts_mappings[opt] = {:type => SLINGSHOT_TYPE_MAPPING[field_type] || "string" }.merge!(properties)
             end
           else
-            if self.instance_methods.include?(attribute.to_s)
+            if self.instance_methods.include?(opt.to_s)
               opts_mappings[opt] = {:type => "string"}.merge!(properties)                
             else
               ::Mebla::Errors::MeblaConfigurationException.new("Invalid field #{opt.to_s} defined for indexing #{self.name}.")
