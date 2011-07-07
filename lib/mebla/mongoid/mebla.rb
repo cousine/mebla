@@ -27,7 +27,7 @@ module Mongoid
         
       # make sure critical data remain read only
       private_class_method :"search_fields=", :"slingshot_mappings=",
-                                          :"embedded_parent_foreign_key=", :"embedded_parent=", :"embedded_as="
+                           :"embedded_parent_foreign_key=", :"embedded_parent=", :"embedded_as="
       
       # add callbacks to synchronize modifications with elasticsearch
       after_save        :add_to_index
@@ -149,11 +149,7 @@ module Mongoid
               attrs_mappings[attribute] = {:type => SLINGSHOT_TYPE_MAPPING[field_type] || "string"}
             end
           else
-            if self.instance_methods.include?(attribute.to_s)
-              attrs_mappings[attribute] = {:type => "string"}
-            else
-              ::Mebla::Errors::MeblaConfigurationException.new("Invalid field #{attribute.to_s} defined for indexing #{self.name}.")
-            end
+            attrs_mappings[attribute] = {:type => "string"}
           end
         end
         
@@ -166,11 +162,7 @@ module Mongoid
               opts_mappings[opt] = {:type => SLINGSHOT_TYPE_MAPPING[field_type] || "string" }.merge!(properties)
             end
           else
-            if self.instance_methods.include?(opt.to_s)
-              opts_mappings[opt] = {:type => "string"}.merge!(properties)                
-            else
-              ::Mebla::Errors::MeblaConfigurationException.new("Invalid field #{opt.to_s} defined for indexing #{self.name}.")
-            end
+            opts_mappings[opt] = {:type => "string"}.merge!(properties)                
           end
         end
         
