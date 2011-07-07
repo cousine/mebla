@@ -30,7 +30,7 @@ module Mebla
         if model_class.embedded?
           model_class_collection = model_ids.assoc(model_class)
           # collect parent ids
-          # {class => {parent_id => [ids]}}
+          # [class, [parent_id, ids]]
           parent_id = hit['_source']['_parent']
           
           model_class_collection << [parent_id]
@@ -38,7 +38,7 @@ module Mebla
           model_class_collection.assoc(parent_id) << hit['_source']['id']
         else
           # collect ids
-          # {class => [ids]}
+          # [class, ids]
           model_ids.assoc(model_class) << hit['_source']['id']
         end
       end
@@ -52,7 +52,9 @@ module Mebla
 
         unless model_class.embedded?
           # Retrieve the results from the database
-          @entries += model_class.any_in(:_id => ids).entries
+          ids.each do |id|
+            @entries << model_class.find(id)
+          end
         else
           # Get the parent
           parent_class = model_class.embedded_parent
@@ -65,7 +67,9 @@ module Mebla
             parent = parent_class.find parent_id
             
             # Retrieve the results from the database
-            @entries += parent.send(access_method.to_sym).any_in(:_id => entries_ids).entries
+            entries_ids.each do |entry_id|
+              @entries << parent.send(access_method.to_sym).find(entry_id)
+            end
           end
         end
       end
