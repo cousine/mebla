@@ -240,6 +240,7 @@ module Mongoid
     # @return [Boolean] true if the operation is successful
     def add_to_index      
       return false unless ::Mebla.context.index_exists? # only try to index if the index exists      
+      return false unless ::Mebla.context.indexed_models.include?(self.class.name)
       
       # Prepare attributes to hash
       to_index_hash = {:id => self.id.to_s}
