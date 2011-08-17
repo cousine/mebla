@@ -153,7 +153,7 @@ module Mebla
               next if items.nil?
               
               # N relation side
-              if items.is_a?(Array)
+              if items.is_a?(Array) || items.is_a?(Mongoid::Relations::Targets::Enumerable)
                 next if items.empty?
                 attrs[relation] = []
                 items.each do |item|

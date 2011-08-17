@@ -56,7 +56,9 @@ describe "Mebla" do
         Mebla.context.rebuild_index
         pi = MongoidPi.create! :name => "A pi"
         alpha = MongoidAlpha.create! :name => "Testing index", :value => 1, :cost => 2.0
-        epsilon = pi.create_mongoid_epsilon :name => "episilon", :mongoid_alphas => [alpha]      
+        epsilon = pi.create_mongoid_epsilon :name => "epsilon"#, :mongoid_alphas => [alpha] # currently there is a bug in setting the relation like this while creating the document
+        epsilon.mongoid_alphas << alpha
+        epsilon.save # another bug; mongoid doesn't raise the save callbacks for `<<` method
       end
       
       it "should search within indexed fields from the relations" do

@@ -269,7 +269,7 @@ module Mongoid
         
         next if entries.nil?
         
-        if entries.is_a?(Array)
+        if entries.is_a?(Array) || entries.is_a?(Mongoid::Relations::Targets::Enumerable)
           next if entries.empty?
           to_index_hash[relation] = []
           entries.each do |entry|
