@@ -17,13 +17,13 @@ module Mongoid
         }
       end
             
-      class_inheritable_accessor :embedded_as      
-      class_inheritable_accessor :embedded_parent
-      class_inheritable_accessor :embedded_parent_foreign_key      
-      class_inheritable_accessor :slingshot_mappings      
-      class_inheritable_accessor :search_fields        
-      class_inheritable_accessor :search_relations        
-      class_inheritable_accessor :whiny_indexing   # set to true to raise errors if indexing fails
+      class_attribute :embedded_as      
+      class_attribute :embedded_parent
+      class_attribute :embedded_parent_foreign_key      
+      class_attribute :slingshot_mappings      
+      class_attribute :search_fields        
+      class_attribute :search_relations        
+      class_attribute :whiny_indexing   # set to true to raise errors if indexing fails
         
       # make sure critical data remain read only
       private_class_method :"search_fields=", :"slingshot_mappings=",
