@@ -16,5 +16,7 @@ group :development do
 
   #optional but handy
   gem 'irbtools', :require => 'irbtools/configure'
-  gem "ruby-debug"
+  
+  gem "ruby-debug", :platform => :ruby_18
+  gem "ruby-debug19", :platform => :ruby_19
 end
