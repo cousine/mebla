@@ -1,7 +1,7 @@
 source "http://rubygems.org"
 
 gem 'slingshot-rb', 			'0.0.8'
-gem 'mongoid', 						'~> 2.1.8'
+gem 'mongoid', 						'>= 2.1.8'
 
 group :development do
   gem "bson_ext", 				"~> 1.3.1"
