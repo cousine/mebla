@@ -129,7 +129,7 @@ DEPENDENCIES
   database_cleaner (= 0.6.4)
   irbtools
   jeweler (~> 1.6.4)
-  mongoid (~> 2.1.8)
+  mongoid (>= 2.1.8)
   mongoid-rspec (~> 1.4.4)
   rcov
   rspec (~> 2.3.0)
