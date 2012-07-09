@@ -1,7 +1,7 @@
 source "http://rubygems.org"
 
 gem 'slingshot-rb', 			'0.0.8'
-gem 'mongoid', 						'~> 2.1.8'
+gem 'mongoid', 						'>= 2.1.8'
 
 group :development do
   gem "bson_ext", 				"~> 1.3.1"
@@ -16,5 +16,7 @@ group :development do
 
   #optional but handy
   gem 'irbtools', :require => 'irbtools/configure'
-  gem "ruby-debug"
+  
+  gem "ruby-debug", :platform => :ruby_18
+  gem "ruby-debug19", :platform => :ruby_19
 end
