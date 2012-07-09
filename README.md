@@ -4,6 +4,13 @@ Mebla
 Mebla is an [elasticsearch](http://www.elasticsearch.org) wrapper for [Mongoid](http://mongoid.org) based on 
 [Slingshot](https://github.com/karmi/slingshot).
 
+WARNING
+====
+
+Mebla is now obsolete, currently [Tire](https://github.com/karmi/tire) does way much better job.
+
+USE Mebla at your own descretion.
+
 Name
 ---------
 
