@@ -188,7 +188,7 @@ To retrieve the results of the model search we performed above we would simply:
     
 To retrieve the facets:
 
-    # Get the count of posts for each tag accross the index
+    # Get the count of posts for each tag across the index
     hits.facets['tags']['terms'].each do |facet|
       puts "#{facet['term']} : #{facet['count']}"
     end
